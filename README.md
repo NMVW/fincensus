@@ -44,8 +44,9 @@ npm install
 To build the project from within the root directory:
 
 ```sh
-webpack dev -w
+webpack -w
 ```
+*Note*: client/test/ will be ignored in build
 
 ### Launching App
 
