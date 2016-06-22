@@ -1,0 +1,10 @@
+language: nodejs
+node:
+  - 4.4
+  - 4.3
+install:
+  - npm install
+  - webpack
+script: npm test
+deploy:
+  skip_cleanup: true
