@@ -1,10 +1,13 @@
 language: nodejs
 node:
-  - 4.4
-  - 4.3
+- 4.4
+- 4.3
 install:
-  - npm install
-  - webpack
+- npm install
+- webpack
 script: npm test
 deploy:
   skip_cleanup: true
+  provider: heroku
+  api_key:
+    secure: QRnx0/TVs/9hFIlat8YPlpCFGxR8BL4NgWTUT5w/fmbh+DX0lenJkeUTjV5idYGrT4fAQluRHOY8gCmN+i/LXL1AASHuP+nLUiKNQUa5svTSzjq2tjg4ChjdwexEkLcIn00Y42Eo3Rl4nXbQ+k18XYQgBqFqXPLRkaUeVf91iYbjUW6CA5+3yNaHbOZSKIoRvTkBqRTJ8ILXtg8PSvnHiK1lLk4V+7+PbuyZSlJbczijsXAG35Veopcy8PVls0w3leef0qLfeo76697qH9mdSsWWpHb5biRH+7M6geUJWxQuIoUrYbDYEssia5LMC+9JtBbh3ab8QLhJA4WShuCASGzQoHPhn9QWpb6lVi94mLq1GaPi7UgBzy+hWIGydbXvstdasl/CHbQ9To3kvgFW38tPaejPczlYZQ9GEA2nVgMjH1Sk7iyEKwRvk5Cuso4D9SE/J5XFiVofxD+954RrdCGNwDOZRn6YhsLdWiB1BaQDmhvwVAxfY4U7ibpDbFJZQQjKZkFTB3Ih/qh68krby65ugKdmRwU0EkpkaIq9SFdza6C5R1c1nn4uo73aUjv0JeLD18yVHtqDkYminA9fooPaZ/4zjBzMf4H9a4SG71cG6Ov+yAIkJolZwzV0r2yrsRk50/Km8GQmL92M3x7Xb8lOHxLAN3k024+ILYRG/XM=
