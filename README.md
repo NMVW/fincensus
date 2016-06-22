@@ -22,7 +22,7 @@ A visualization tool for consumer opinion on financial products built with the M
 
  Make sure you have installed all of the following prerequisites on your development machine:
 
-* Node 4.4.3
+* Node 4.4.5
 * Express 4.13.4
 * React 15.0.2
 * Redux 3.5.2
@@ -60,7 +60,7 @@ Then create a MySQl table called `fincensus`.
 In the root folder, run:
 ```
 webpack -w
-``` 
+```
 
 In the /server folder, run:
 
