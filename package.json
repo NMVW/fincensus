@@ -4,7 +4,8 @@
   "description": "A visualization tool for consumer opinion on financial products built with the MERN stack: MySQL, Express, React/Redux, Node",
   "main": "index.js",
   "scripts": {
-    "test": "mocha client/test/*"
+    "test": "mocha client/test/*",
+    "dev": "webpack -w | nodemon server/index.js"
   },
   "repository": {
     "type": "git",
