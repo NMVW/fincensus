@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha client/test/*",
+    "build": "webpack -w",
     "dev": "webpack -w | nodemon server/index.js"
   },
   "repository": {
