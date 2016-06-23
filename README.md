@@ -39,42 +39,22 @@ From within the root directory:
 npm install
 ```
 
-### Tasks <a id="tasks"></a>
+### Build Tasks <a id="tasks"></a>
 
-To build the project from within the root directory:
+To build the project from within the root directory from a bash CLI:
 
 ```sh
-webpack -w
+npm test
+npm build
+npm dev
 ```
+This series of commands will run the mocha suite test, build the client files, and serve the client files to `http://localhost:3333`, respectively.
+
 *Note*: client/test/ will be ignored in build
-
-### Launching App
-
-Launch the MySQL server by running:
-
-```
-mysql.server start
-```
-
-Then create a MySQl table called `fincensus`.
-
-In the root folder, run:
-```
-webpack -w
-```
-
-In the /server folder, run:
-
-```
-npm server.js
-```
-
-Finally, navigate to `http://localhost:3000` on your web browser.
 
 ## Team <a id="team"></a>
 
 + Nicolas Vinson
-
 
 ### Roadmap <a id="roadmap"></a>
 
