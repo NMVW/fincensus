@@ -18,47 +18,153 @@ var optionA = {
   }
 };
 
-///// QUERIES to Consumer Complaints DB /////////
-
-// inputs: 2 CHAR uppercase string i.e. 'NY' -> output: most complained about product
-exports.productRankByState = function(state) {
+//// (Product) of [rank] most complaints in [state] of
+// inputs: 2 CHAR uppercase string, number -> output: string
+// DEFAULTS: undefined, 1
+exports.productRankByState = function(state, rank) {
   request(baseComplaints + '?state=' + state + '&' + '$select=product,count(issue)&$group=product')
     .then(function(data) {
 
-      // pluck most complained about product
+      // extract most complained about product
       var max = JSON.parse(data)
         .reduce(function(a,b) {
           return +a.count_issue > +b.count_issue ? a: b;
         }, {count_issue:0});
 
       console.log('send product to client:', max);
+      // send max to client HERE
     })
     .catch(function(err) {
       console.log(err);
     });
 };
 
-
-///// QUERIES to US Census DB /////////////////
-
-// inputs: bank, year -> output: total number of people born in cities
+//// (Number of births) in the [year] and states where [bank] had a complaint
+// inputs: string, number -> output: number
 exports.birthsInRange = function(bank, year) {
 
-  // map year of change to periods for API endpoint
-  var periods = {
-    2011: 2,
-    2012: 3,
-    2013: 4,
-    2014: 5,
-    2015: 6
-  };
+  var start = new Date('' + year).toISOString().replace('Z', '');
+  var end = new Date('' + (year + 1)).toISOString().replace('Z', '');
 
-  // first find cities where bank had Complaints
+  //// Consumer Complaints DB
+  request(baseComplaints + '?company=' + bank + '&$where=date_sent_to_company between "' + start + '" and "' + end + '"')
+    .then(function(complaints) {
+      complaints = JSON.parse(complaints);
 
-  // then find number of people born in those cities
-  request(baseCensus + 'components?get=BIRTHS,GEONAME&for=state:06&PERIOD=' + periods[year] + '&key=' + process.env.KEY)
-    .then(function(data) {
-      var births = JSON.parse(data);
-      console.log('births in range data!', births);
+      // (States) that [bank] had complaints in [year]
+      var states = complaints.reduce(function(uniqs, complaint) {
+        if (complaint.state) {
+          uniqs[complaint.state] = true;
+        }
+        return uniqs;
+      }, {});
+
+      states = Object.keys(states);
+
+      // helper for concurrent reduce
+      function sumBirths(births, state, cb) {
+
+        //// US Census API
+        // concurrent calls to sum BIRTHS
+        request(baseCensus + 'components?get=BIRTHS,GEONAME&for=state:' + stateToFips[state] + '&PERIOD=' + periods[year] + '&key=' + process.env.KEY)
+          .then(function(data) {
+
+            var birth = JSON.parse(data);
+            console.log('births in range data for state!',state, +birth[1][0], 'total:',births);
+
+            if (birth && typeof +birth[1][0] === 'number') {
+              cb(null, births + +birth[1][0]);
+            } else {
+              cb(null, births + 0);
+            }
+          })
+          .catch(function(err) {
+            // NONBLOCKING error on 'AP' and 'GU' provinces returned from states query
+            console.log(err,'NOT a continental state: ', state,' total:', births);
+            cb(null, births + 0);
+          });
+      }
+
+      // (Number of births) in [states]
+      sumReduce(states, 0, sumBirths, function(err,result) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log('sum of all births in ',states.length,' states: ',result);
+          // send (Number of births) to client HERE in response body
+        }
+      })
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
+};
+
+//// (State) of [rank] most growth with most complaints about [product]
+// inputs: number, string -> output: string
+exports.stateByProduct = function(rank, product, year) {
+  year = year || 2014;
+  rank = rank || 1;
+
+  var start = new Date('' + year).toISOString().replace('Z', '');
+  var end = new Date('' + (year + 1)).toISOString().replace('Z', '');
+
+  //// Consumer Complaints DB
+  request(baseComplaints + '?product=' + product + '&$where=date_sent_to_company between "' + start + '" and "' + end + '"')
+    .then(function(complaints) {
+      complaints = JSON.parse(complaints);
+
+      // console.log(complaints);
+      // (States) that [bank] had complaints in [year]
+      var stateComplaints = complaints.reduce(function(uniqs, complaint) {
+        if (complaint.state) {
+          uniqs[complaint.state] = uniqs[complaint.state] ? ++uniqs[complaint.state]: 1;
+        }
+        return uniqs;
+      }, {});
+
+      console.log('states: issue count', stateComplaints);
+
+      var stateGrowth = {};
+
+      // helper for concurrent side-effects
+      function netBirths(stateGrowth, state, cb) {
+
+        //// US Census API
+        // concurrent calls to sum BIRTHS
+        request(baseCensus + 'components?get=BIRTHS,DEATHS,GEONAME&for=state:' + stateToFips[state] + '&PERIOD=' + periods[year] + '&key=' + process.env.KEY)
+          .then(function(data) {
+
+            var growth = JSON.parse(data);
+            console.log('net growth for:', state, +growth[1][0]-growth[1][1]);
+
+            if (growth && typeof +growth[1][0] === 'number') {
+              stateGrowth[state] = +growth[1][0] - growth[1][1];
+              cb(null, stateGrowth);
+            } else {
+              cb(null, stateGrowth);
+            }
+          })
+          .catch(function(err) {
+            // NONBLOCKING error on 'AP' and 'GU' provinces returned from states query
+            console.log(err,'NOT a continental state: ', state,' growths:', stateGrowth);
+            // cb(null, births + 0);
+          });
+      }
+
+      // (Net births) in [states]
+      asyncReduce(Object.keys(stateComplaints), {}, netBirths, function(err,result) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log('net births in ',states.length,' states: ',result);
+          console.log('stateGrowth, stateComplaints',stateGrowth, stateComplaints);
+          // compare stateComplaints to netGrowth to find max complaints + max growth
+          // send (state) to client HERE in response body
+        }
+      });
+    })
+    .catch(function(err) {
+      console.log(err);
     });
 };
