@@ -5,8 +5,9 @@ require('./config/middleware.js')(app, express);
 require('./config/routes.js')(app, express);
 
 // Uncomment for testing server routes
-require('./config/worker.js').productRankByState('NY');
-require('./config/worker.js').birthsInRange('bank', 2015);
+// require('./config/worker.js').productRankByState('NY');
+// require('./config/worker.js').birthsInRange('Bank of America', 2014);
+require('./config/worker.js').stateByProduct(0, 'Mortgage', 2014);
 
 var port = process.env.PORT || 3333;
 var server = app.listen(port, function() {
