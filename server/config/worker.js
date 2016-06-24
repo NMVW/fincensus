@@ -19,7 +19,7 @@ var optionA = {
 };
 
 //// (Product) of [rank] most complaints in [state] of
-// inputs: 2 CHAR uppercase string, number -> output: string
+// inputs: 2 CHAR uppercase string, number OPTIONAL -> output: string
 // DEFAULTS: undefined, 1
 exports.productRankByState = function(state, rank) {
   request(baseComplaints + '?state=' + state + '&' + '$select=product,count(issue)&$group=product')
@@ -101,7 +101,7 @@ exports.birthsInRange = function(bank, year) {
 };
 
 //// (State) of [rank] most growth with most complaints about [product]
-// inputs: number, string -> output: string
+// inputs: number OPTIONAL, string, number OPTIONAL -> output: [string, string]
 exports.stateByProduct = function(rank, product, year) {
   year = year || 2014;
   rank = rank || 1;
@@ -110,11 +110,11 @@ exports.stateByProduct = function(rank, product, year) {
   var end = new Date('' + (year + 1)).toISOString().replace('Z', '');
 
   //// Consumer Complaints DB
+  // TODO : simplify by reordering queries, fastest growing state then find # of complaints
   request(baseComplaints + '?product=' + product + '&$where=date_sent_to_company between "' + start + '" and "' + end + '"')
     .then(function(complaints) {
       complaints = JSON.parse(complaints);
 
-      // console.log(complaints);
       // (States) that [bank] had complaints in [year]
       var stateComplaints = complaints.reduce(function(uniqs, complaint) {
         if (complaint.state) {
