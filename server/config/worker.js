@@ -148,19 +148,26 @@ exports.stateByProduct = function(rank, product, year) {
           .catch(function(err) {
             // NONBLOCKING error on 'AP' and 'GU' provinces returned from states query
             console.log(err,'NOT a continental state: ', state,' growths:', stateGrowth);
-            // cb(null, births + 0);
+            cb(null, stateGrowth);
           });
       }
 
       // (Net births) in [states]
-      asyncReduce(Object.keys(stateComplaints), {}, netBirths, function(err,result) {
+      asyncReduce(Object.keys(stateComplaints), {}, netBirths, function(err,stateGrowth) {
         if (err) {
           console.log(err);
         } else {
-          console.log('net births in ',states.length,' states: ',result);
-          console.log('stateGrowth, stateComplaints',stateGrowth, stateComplaints);
-          // compare stateComplaints to netGrowth to find max complaints + max growth
-          // send (state) to client HERE in response body
+          console.log('stateGrowth, stateComplaints', stateGrowth, stateComplaints);
+
+          var max = 'NY';
+          // find fastest growing state
+          for (var state in stateGrowth) {
+            max = stateGrowth[state] > stateGrowth[max] ? max: state;
+          }
+
+          // send (state, product) to client HERE in response body
+          console.log('fastest growing state:',max, '# of complaints about',product, stateComplaints[max]);
+
         }
       });
     })
