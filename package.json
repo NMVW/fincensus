@@ -31,12 +31,16 @@
     "webpack": "^1.13.1"
   },
   "dependencies": {
+    "async-reduce": "0.0.1",
     "body-parser": "^1.15.2",
+    "citysdk": "^1.0.1",
     "express": "^4.14.0",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
     "react-redux": "^4.4.5",
     "redux": "^3.5.2",
+    "request": "^2.72.0",
+    "request-promise": "^3.0.0",
     "sequelize": "^3.23.3"
   }
 }
