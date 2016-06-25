@@ -28,10 +28,14 @@ exports.complaintsToProduct = function(state, rank, res) {
       // extract [rank] most complained about product
       var products = JSON.parse(data).sort(function(a, b) {return +b.count_issue - +a.count_issue});
       var select = products[rank - 1];
-      
-      console.log('send product to client:', {state:state, rank:rank, product:select});
+
+      var result = {
+        state: state,
+        rank: rank,
+        product: select
+      };
       // send select to client HERE
-      // res.send(select);
+      res.send(result);
     })
     .catch(function(err) {
       console.log(err);
@@ -88,13 +92,19 @@ exports.pop = function(bank, year, res) {
       }
 
       // (Number of births) in [states]
-      sumReduce(states, 0, sumBirths, function(err,result) {
+      sumReduce(states, 0, sumBirths, function(err, result) {
         if (err) {
           console.log(err);
+          res.send(err);
         } else {
-          console.log('sum of all births in ',states.length,' states: ',{states:states.length, births:result, bank:bank, year:year});
+          var results = {
+            states: states.length,
+            births: result,
+            bank: bank,
+            year: year
+          };
           // send (Number of births) to client HERE in response body
-          // res.send(result);
+          res.send(results);
         }
       })
     })
@@ -158,14 +168,33 @@ exports.states = function(rank, product, year, res) {
       request(baseComplaints + '?product=' + product + '&state=' + select + '&$where=date_sent_to_company between "' + start + '" and "' + end + '"')
         .then(function(complaints) {
           complaints = JSON.parse(complaints);
-
+          
+          var result = {
+            rank: rank,
+            state: select,
+            top: {
+              product: product,
+              complaints: complaints.length
+            }
+          };
           // (State) that [bank] had complaints in [year]
-          console.log({rank: rank, state:select, top:{product:product,complaints:complaints.length}});
-          // send result to client HERE in response body
-          // res.send()
+          res.send(result);
         }).catch(function(err) {
           console.log(err);
         });
     }
   });
+};
+
+exports.initialize = function(res) {
+  // find API-valid states,
+  
+  // products,
+  
+  // banks,
+  
+  // years
+  
+  // return the bounds for queries to client
+  res.send();
 };
