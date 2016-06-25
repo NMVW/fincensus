@@ -8,6 +8,10 @@ export default class Query extends React.Component {
   constructor(props) {
     super(props);
   }
+  
+  componentWillMount() {
+    this.props.param
+  }
 
   render() {
     
