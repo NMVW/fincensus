@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'react-bootstrap';
 import { Tab } from 'react-bootstrap';
-import Query from './plot/Query.jsx';
+import Query from './Query.jsx';
 
 export default class ContainerTabs extends React.Component {
   constructor(props) {

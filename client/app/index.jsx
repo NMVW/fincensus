@@ -1,10 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Tabs from './components/Tabs.jsx';
+import { Grid, Row } from 'react-bootstrap';
+
+// Custom components
+import Navbar from './components/Navbar.jsx';
+import Banner from './components/Banner.jsx';
+import Plot from './components/Plot.jsx';
 
 class Main extends React.Component {
   render() {
-    return <Tabs />
+    return (
+        <Grid fluid={ true }>
+          <Row>
+            <Navbar />
+          </Row>
+          <Row>
+            <Banner />
+          </Row>
+          <Row>
+            <Plot />
+          </Row>
+        </Grid>
+      ) 
   }
 }
 
