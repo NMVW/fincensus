@@ -6,10 +6,25 @@ export default class Plot extends React.Component {
   constructor(props) {
     super(props);
   }
+  
+  componentDidMount() {
+    let data = [{
+      values: [19, 26, 55],
+      labels: ['Residential', 'Non-Residential', 'Utility'],
+      type: 'pie'
+    }];
+
+    let layout = {
+      height: 400,
+      width: 500
+    };
+
+    Plotly.newPlot('plot', data, layout);
+  }
 
   render() {
     
-    return <div></div>
+    return <div id="plot"></div>
   }
 
 }
