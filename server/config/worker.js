@@ -27,10 +27,11 @@ exports.complaintsToProduct = function(state, rank, res) {
 
       // extract [rank] most complained about product
       var products = JSON.parse(data).sort(function(a, b) {return +b.count_issue - +a.count_issue});
-
-      console.log('send product to client:', [state, rank, products[rank - 1]]);
-      // send max to client HERE
-      // res.send(max);
+      var select = products[rank - 1];
+      
+      console.log('send product to client:', {state:state, rank:rank, product:select});
+      // send select to client HERE
+      // res.send(select);
     })
     .catch(function(err) {
       console.log(err);
@@ -91,7 +92,7 @@ exports.pop = function(bank, year, res) {
         if (err) {
           console.log(err);
         } else {
-          console.log('sum of all births in ',states.length,' states: ',{states:states.length, births:result, bank:bank});
+          console.log('sum of all births in ',states.length,' states: ',{states:states.length, births:result, bank:bank, year:year});
           // send (Number of births) to client HERE in response body
           // res.send(result);
         }
@@ -112,69 +113,59 @@ exports.states = function(rank, product, year, res) {
   var start = new Date('' + year).toISOString().replace('Z', '');
   var end = new Date('' + (year + 1)).toISOString().replace('Z', '');
 
-  //// Consumer Complaints DB
-  // TODO : simplify by reordering queries, fastest growing state then find # of complaints
-  request(baseComplaints + '?product=' + product + '&$where=date_sent_to_company between "' + start + '" and "' + end + '"')
-    .then(function(complaints) {
-      complaints = JSON.parse(complaints);
+  var stateGrowth = {};
 
-      // (States) that [bank] had complaints in [year]
-      var stateComplaints = complaints.reduce(function(uniqs, complaint) {
-        if (complaint.state) {
-          uniqs[complaint.state] = uniqs[complaint.state] ? ++uniqs[complaint.state]: 1;
-        }
-        return uniqs;
-      }, {});
+  // helper for concurrent side-effects
+  function netBirths(stateGrowth, state, cb) {
 
-      console.log('states: issue count', stateComplaints);
+    //// US Census API
+    // concurrent calls to sum BIRTHS
+    request(baseCensus + 'components?get=BIRTHS,DEATHS,GEONAME&for=state:' + stateToFips[state] + '&PERIOD=' + periods[year] + '&key=' + process.env.KEY)
+      .then(function(data) {
 
-      var stateGrowth = {};
+        var growth = JSON.parse(data);
+        console.log('net growth for:', state, +growth[1][0]-growth[1][1]);
 
-      // helper for concurrent side-effects
-      function netBirths(stateGrowth, state, cb) {
-
-        //// US Census API
-        // concurrent calls to sum BIRTHS
-        request(baseCensus + 'components?get=BIRTHS,DEATHS,GEONAME&for=state:' + stateToFips[state] + '&PERIOD=' + periods[year] + '&key=' + process.env.KEY)
-          .then(function(data) {
-
-            var growth = JSON.parse(data);
-            console.log('net growth for:', state, +growth[1][0]-growth[1][1]);
-
-            if (growth && typeof +growth[1][0] === 'number') {
-              stateGrowth[state] = +growth[1][0] - growth[1][1];
-              cb(null, stateGrowth);
-            } else {
-              cb(null, stateGrowth);
-            }
-          })
-          .catch(function(err) {
-            // NONBLOCKING error on 'AP' and 'GU' provinces returned from states query
-            console.log(err,'NOT a continental state: ', state,' growths:', stateGrowth);
-            cb(null, stateGrowth);
-          });
-      }
-
-      // (Net births) in [states]
-      asyncReduce(Object.keys(stateComplaints), {}, netBirths, function(err,stateGrowth) {
-        if (err) {
-          console.log(err);
+        if (growth && typeof +growth[1][0] === 'number') {
+          stateGrowth[state] = +growth[1][0] - growth[1][1];
+          cb(null, stateGrowth);
         } else {
-          console.log('stateGrowth, stateComplaints', stateGrowth, stateComplaints);
-
-          var max = 'NY';
-          // find fastest growing state
-          for (var state in stateGrowth) {
-            max = stateGrowth[state] > stateGrowth[max] ? max: state;
-          }
-
-          // send (state, product) to client HERE in response body
-          console.log('fastest growing state:',max, '# of complaints about',product, stateComplaints[max]);
-
+          cb(null, stateGrowth);
         }
+      })
+      .catch(function(err) {
+        // NONBLOCKING error on 'AP' and 'GU' provinces returned from states query
+        console.log(err,'NOT a continental state: ', state,' growths:', stateGrowth);
+        cb(null, stateGrowth);
       });
-    })
-    .catch(function(err) {
+  }
+  
+  var states = Object.keys(stateToFips);
+  
+  // (Net births) in [states]
+  asyncReduce(states, {}, netBirths, function(err, stateGrowth) {
+    if (err) {
       console.log(err);
-    });
+    } else {
+      console.log('stateGrowth', stateGrowth);
+      
+      // find [rank] fastest growing state
+      var ranked = states.sort(function(a, b) {return stateGrowth[b] - stateGrowth[a]});
+      var select = ranked[rank - 1];
+      
+      // find # of complaints for [product] in found state
+      //// Consumer Complaints DB
+      request(baseComplaints + '?product=' + product + '&state=' + select + '&$where=date_sent_to_company between "' + start + '" and "' + end + '"')
+        .then(function(complaints) {
+          complaints = JSON.parse(complaints);
+
+          // (State) that [bank] had complaints in [year]
+          console.log({rank: rank, state:select, top:{product:product,complaints:complaints.length}});
+          // send result to client HERE in response body
+          // res.send()
+        }).catch(function(err) {
+          console.log(err);
+        });
+    }
+  });
 };
