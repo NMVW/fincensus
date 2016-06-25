@@ -3,12 +3,31 @@
 <head>
   <!-- RED: rgb(215, 18, 9)
   YELLOW: rgb(255, 255, 0) -->
+
+  <!-- Bootstrap frontend -->
+  <!-- http://startbootstrap.com/template-overviews/business-frontpage/ -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fincensus - Financial Consumer Trends</title>
   <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 </head>
 <body>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <div id="main"></div>
+  <div id="plot"></div>
+  <script>
+  let data = [{
+      values: [19, 26, 55],
+      labels: ['Residential', 'Non-Residential', 'Utility'],
+      type: 'pie'
+    }];
+
+    let layout = {
+      height: 400,
+      width: 500
+    };
+
+    Plotly.newPlot('plot', data, layout);
+  </script>
 </body>
 </html>
