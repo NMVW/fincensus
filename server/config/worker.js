@@ -8,8 +8,6 @@ var asyncReduce = require('./utils.js').asyncReduce;
 var baseComplaints = require('./utils.js').baseComplaints;
 var baseCensus = require('./utils.js').baseCensus;
 
-
-
 // include app token in requests
 var optionA = {
   url: baseComplaints,
@@ -20,29 +18,31 @@ var optionA = {
 
 //// (Product) of [rank] most complaints in [state] of
 // inputs: 2 CHAR uppercase string, number OPTIONAL -> output: string
-// DEFAULTS: undefined, 1
-exports.productRankByState = function(state, rank) {
-  request(baseComplaints + '?state=' + state + '&' + '$select=product,count(issue)&$group=product')
+exports.complaintsToProduct = function(state, rank, res) {
+  state = state || 'CO';
+  rank = rank || 1;
+  
+  request(baseComplaints + '?state=' + state + '&$select=product,count(issue)&$group=product')
     .then(function(data) {
 
-      // extract most complained about product
-      var max = JSON.parse(data)
-        .reduce(function(a,b) {
-          return +a.count_issue > +b.count_issue ? a: b;
-        }, {count_issue:0});
+      // extract [rank] most complained about product
+      var products = JSON.parse(data).sort(function(a, b) {return +b.count_issue - +a.count_issue});
 
-      console.log('send product to client:', max);
+      console.log('send product to client:', [state, rank, products[rank - 1]]);
       // send max to client HERE
+      // res.send(max);
     })
     .catch(function(err) {
       console.log(err);
     });
 };
 
-//// (Number of births) in the [year] and states where [bank] had a complaint
+//// (Number of births) in the states where [bank] had a complaint in [year]
 // inputs: string, number -> output: number
-exports.birthsInRange = function(bank, year) {
-
+exports.pop = function(bank, year, res) {
+  bank = bank || 'Bank of America';
+  year = year || 2015;
+  
   var start = new Date('' + year).toISOString().replace('Z', '');
   var end = new Date('' + (year + 1)).toISOString().replace('Z', '');
 
@@ -53,12 +53,13 @@ exports.birthsInRange = function(bank, year) {
 
       // (States) that [bank] had complaints in [year]
       var states = complaints.reduce(function(uniqs, complaint) {
-        if (complaint.state) {
+        // exclude provinces 'AP', 'GU'
+        if (complaint.state && complaint.state !== 'AP' && complaint.state !== 'GU') {
           uniqs[complaint.state] = true;
         }
         return uniqs;
       }, {});
-
+      
       states = Object.keys(states);
 
       // helper for concurrent reduce
@@ -70,7 +71,7 @@ exports.birthsInRange = function(bank, year) {
           .then(function(data) {
 
             var birth = JSON.parse(data);
-            console.log('births in range data for state!',state, +birth[1][0], 'total:',births);
+            console.log('births in range for state:',state, +birth[1][0], 'total:',births);
 
             if (birth && typeof +birth[1][0] === 'number') {
               cb(null, births + +birth[1][0]);
@@ -79,7 +80,7 @@ exports.birthsInRange = function(bank, year) {
             }
           })
           .catch(function(err) {
-            // NONBLOCKING error on 'AP' and 'GU' provinces returned from states query
+            // NONBLOCKING error on provinces returned from states query
             console.log(err,'NOT a continental state: ', state,' total:', births);
             cb(null, births + 0);
           });
@@ -90,8 +91,9 @@ exports.birthsInRange = function(bank, year) {
         if (err) {
           console.log(err);
         } else {
-          console.log('sum of all births in ',states.length,' states: ',result);
+          console.log('sum of all births in ',states.length,' states: ',{states:states.length, births:result, bank:bank});
           // send (Number of births) to client HERE in response body
+          // res.send(result);
         }
       })
     })
@@ -102,9 +104,10 @@ exports.birthsInRange = function(bank, year) {
 
 //// (State) of [rank] most growth with most complaints about [product]
 // inputs: number OPTIONAL, string, number OPTIONAL -> output: [string, string]
-exports.stateByProduct = function(rank, product, year) {
-  year = year || 2014;
+exports.states = function(rank, product, year, res) {
   rank = rank || 1;
+  product = product || 'Mortgage';
+  year = year || 2015;
 
   var start = new Date('' + year).toISOString().replace('Z', '');
   var end = new Date('' + (year + 1)).toISOString().replace('Z', '');
