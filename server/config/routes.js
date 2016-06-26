@@ -11,7 +11,7 @@ module.exports = function(app) {
     });
 
   // (Number of births) in the [year] and states where [bank] had a complaint
-  app.route('/api/pop/:bank/:year')
+  app.route('/api/population/:bank/:year')
    .get(function(req, res) {
       worker.pop(req.params.bank, +req.params.year, res);
    });

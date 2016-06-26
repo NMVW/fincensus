@@ -23,7 +23,7 @@ class ContainerTabs extends React.Component {
   render() {
     
     return <Tabs defaultActiveKey={this.props.active} onSelect={this._handleSelect} id="controlled-tabs">
-      <Tab eventKey={"STATE"} title="STATE">
+      <Tab eventKey={"STATES"} title="STATE">
         What is the <strong>RANK</strong> most complained about product in <strong>STATE</strong>?
         <Query params={["STATE", "RANK"]}/>
       </Tab>
