@@ -192,23 +192,17 @@ exports.initialize = function(res) {
   var products = [];
   
   // find API-valid banks,
-  request(baseComplaints + '?$select=company')
+  request(baseComplaints + '?$select=company&$group=company')
     .then(function(companies) {
-      companies = JSON.parse(companies).reduce(function(uniqs, row) {
-        if (!uniqs[row.company]) {
-          uniqs[row.company] = true;
-        }
-        return uniqs;
-      }, {});
+      companies = JSON.parse(companies).map(function(entry) {
+        return entry.company;
+      });
       // products,
-      request(baseComplaints + '?$select=product')
+      request(baseComplaints + '?$select=product&$group=product')
         .then(function(products) {
-          products = JSON.parse().reduce(function(uniqs, row) {
-            if (!uniqs[row.product]) {
-              uniqs[row.product] = true;
-            }
-            return uniqs;
-          }, {});
+          products = JSON.parse(products).map(function(entry) {
+            return entry.product;
+          });
           var result = {
             companies: companies,
             products: products

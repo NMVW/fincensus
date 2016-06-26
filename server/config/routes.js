@@ -25,7 +25,6 @@ module.exports = function(app) {
   // Initialize API-valid banks and products (states, years assumed stagnant params)
   app.route('/api/initialize')
     .get(function(req, res) {
-      res.send('Route under construction');
-      // worker.initialize(res);
+      worker.initialize(res);
     });
 };
