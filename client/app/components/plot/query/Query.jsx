@@ -16,24 +16,22 @@ export default class Query extends React.Component {
   }
   
   componentWillMount() {
-    this.props.param
+    this.props;
   }
 
   render() {
-    
     return (
-      
       
       <form>
         <FormGroup controlId="formControlsSelect">
-          <ControlLabel>{ this.props.param }</ControlLabel>
+          <ControlLabel>{ this.props.active }</ControlLabel>
           <FormControl componentClass="select" placeholder="select">
-            <option value="select">select { this.props.param }</option>
-            <option value="other">...</option>
+            <option value={this.props.active}>{this.props.active}</option>
+            <option value={this.props.params}>{this.props.params}</option>
           </FormControl>
         </FormGroup>
         <Button type="submit" bsStyle="success">
-          Show Me
+          Show Me { this.props.active }
         </Button>
       </form>
     )
