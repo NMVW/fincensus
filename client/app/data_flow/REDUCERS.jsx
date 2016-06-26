@@ -21,7 +21,7 @@ const initialState = {
   years: Years,
   banks: [],
   products: [],
-  active: 'STATE',
+  active: 'STATES',
   query: [],
   fetching: false
 }

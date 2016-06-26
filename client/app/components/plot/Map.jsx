@@ -39,7 +39,7 @@ class Map extends React.Component {
 
 
           var layout = {
-              title: '2011 US Agriculture Exports by State',
+              title: 'Financial Consumer Complaints in USA',
               geo:{
                   scope: 'usa',
                   showlakes: true,

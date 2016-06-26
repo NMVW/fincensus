@@ -3,53 +3,123 @@ import { connect } from 'react-redux';
 import { FormGroup } from 'react-bootstrap';
 import { FormControl } from 'react-bootstrap';
 import { ControlLabel } from 'react-bootstrap';
-import { Button } from 'react-bootstrap';
+import SmartButton from './SmartButton.jsx';
 
 // Exposed API Endpoints
 // /api/states/:state/:rank
-// /api/pop/:bank/:year
+// /api/population/:bank/:year
 // /api/growth/:year/:rank/:product
 
 class Query extends React.Component {
   constructor(props) {
     super(props);
+    // query build path
+    this.state = {
+      path: this.props.active,
+      count: 0
+    };
+    this._checkQuery = this._checkQuery.bind(this);
+    this._submitQuery = this._submitQuery.bind(this);
+    this._updateQuery = this._updateQuery.bind(this);
   }
   
-  componentWillMount() {
-    this.props;
+  _submitQuery(query) {
+    query.preventDefault();
+    console.log('form inputs please?', Object.keys(query));
+  }
+  
+  _checkQuery() {
+    console.log(this.state);
+    if (this.state.path > 11 && this.state.count >= 2) {
+      return 'success';
+    } else {
+      return 'error';
+    }
+  }
+  
+  _updateQuery(e) {
+    console.log('what is there to do?', e.target.value, typeof e.target.key);
+    let piece = this.state.path;
+    switch (this.props.active) {
+      case 'STATES':
+        // fresh path (hack for state)
+        if (piece === 'STATES' && this.props.states.indexOf(e.target.value) !== -1) {
+          this.setState({
+            path: piece + '/' + e.target.value,
+            count: ++this.state.count
+          });
+        // 2/3 params filled out (hack for rank)
+        } else if (piece.length === 9 && [1,2,3,4,5,6,7,8,9,10].indexOf(+e.target.value) !== -1) {
+          this.setState({
+            path: piece + '/' + e.target.value,
+            count: ++this.state.count
+          });
+        }
+      case 'GROWTH':
+        // fresh path
+        if (piece === 'GROWTH' && this.props.years.indexOf(e.target.value) !== -1) {
+          this.setState({
+            path: piece + '/' + e.target.value,
+            count: ++this.state.count            
+          });
+        } else if (piece.length === 11 && [1,2,3,4,5,6,7,8,9,10].indexOf(+e.target.value) !== -1) {
+          this.setState({
+            path: piece + '/' + e.target.value,
+            count: ++this.state.count
+          });
+        } else if (piece.length > 12 && this.props.products.indexOf(e.target.value) !== -1) {
+          this.setState({
+            path: piece + '/' + e.target.value,
+            count: ++this.state.count
+          });
+        }
+      default:
+        //population
+        if (piece === 'POPULATION' && this.props.banks.indexOf(e.target.value) !== -1) {
+          this.setState({
+            path: piece + '/' + e.target.value,
+            count: ++this.state.count
+          });
+        } else if (piece.length > 11 && this.props.years.indexOf(e.target.value) !== -1) {
+          this.setState({
+            path: piece + '/' + e.target.value,
+            count: ++this.state.count
+          });
+        }
+    }
   }
 
   render() {
     let self = this;
     let ranks = [1,2,3,4,5,6,7,8,9,10];
-    let params = this.props.params;
+    let show = this.props.active === 'STATES' ? 'Product': this.props.active === 'GROWTH'? 'Issues': 'Births';
     let el =
-      params.map((param) => {
-        return <FormGroup controlId={"formControlsSelect" + param}>
+      this.props.params.map((param) => {
+        return <FormGroup validationState={this._checkQuery()} controlId={"formControlsSelect" + param}>
           <ControlLabel>{ param }</ControlLabel>
-          <FormControl componentClass="select" placeholder="select">
+          <FormControl onChange={this._updateQuery} componentClass="select" placeholder="select">
             {
               (() => {
               
                 if (param === 'STATE') {
                   return self.props.states.map((state) => {
-                    return <option key={state} value={state}>{state}</option>
+                    return <option flag="STATE" key={state} value={state}>{state}</option>
                   })
                 } else if (param === 'YEAR') {
                   return self.props.years.map((year) => {
-                    return <option key={year} value={year}>{year}</option>
+                    return <option flag="YEAR" key={year} value={year}>{year}</option>
                   })
                 } else if (param === 'BANK') {
                   return self.props.banks.map((bank) => {
-                    return <option key={bank} value={bank}>{bank}</option>
+                    return <option flag="BANK" key={bank} value={bank}>{bank}</option>
                   })
                 } else if (param === 'PRODUCT') {
                   return self.props.products.map((product) => {
-                    return <option key={product} value={product}>{product}</option>
+                    return <option flag="PRODUCT" key={product} value={product}>{product}</option>
                   })
                 } else {
                   return ranks.map((rank) => {
-                    return <option key={rank} value={rank}>{rank}</option>
+                    return <option flag="RANK" key={rank} value={rank}>{rank}</option>
                   })
                 }
               })()
@@ -59,9 +129,7 @@ class Query extends React.Component {
       });
     return <form>
       {el}
-      <Button type="submit" bsStyle="success">
-        Show Me { this.props.active }
-      </Button>
+      <SmartButton build={this.state} show={show} />
     </form>
   }
 }
