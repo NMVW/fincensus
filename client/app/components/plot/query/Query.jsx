@@ -21,54 +21,49 @@ class Query extends React.Component {
 
   render() {
     let self = this;
-    console.log(this.props.params)
-    console.log(this.props.params.map((param) => {
-      <FormGroup controlId={"formControlsSelect" + param}>
-              <ControlLabel>{ param }</ControlLabel>
-              <FormControl componentClass="select" placeholder="select">
-                <option value ={param}>param</option>
-              </FormControl>
-      </FormGroup>
-    });
-    let el = this.props.params.map((param) => {
-            <FormGroup controlId="formControlsSelect">
-              <ControlLabel>{ param }</ControlLabel>
-              <FormControl componentClass="select" placeholder="select">
+    let ranks = [1,2,3,4,5,6,7,8,9,10];
+    let params = this.props.params;
+    let el =
+      params.map((param) => {
+        return <FormGroup controlId={"formControlsSelect" + param}>
+          <ControlLabel>{ param }</ControlLabel>
+          <FormControl componentClass="select" placeholder="select">
+            {
+              (() => {
+              
                 if (param === 'STATE') {
-                  this.props.states.map((state) => {
-                    return <option key={state} value={state}>state</option>
+                  return self.props.states.map((state) => {
+                    return <option key={state} value={state}>{state}</option>
                   })
                 } else if (param === 'YEAR') {
-                  this.props.years.map((year) => {
-                    return <option key={year} value={year}>year</option>
+                  return self.props.years.map((year) => {
+                    return <option key={year} value={year}>{year}</option>
                   })
                 } else if (param === 'BANK') {
-                  this.props.banks.map((bank) => {
-                    return <option key={bank} value={bank}>bank</option>
+                  return self.props.banks.map((bank) => {
+                    return <option key={bank} value={bank}>{bank}</option>
                   })
                 } else if (param === 'PRODUCT') {
-                  this.props.products.map((product) => {
-                    return <option key={product} value={product}>product</option>
+                  return self.props.products.map((product) => {
+                    return <option key={product} value={product}>{product}</option>
                   })
                 } else {
-                  [1,2,3,4,5,6,7,8,9,10].map((rank) => {
-                    return <option key={rank} value={rank}>rank</option>
+                  return ranks.map((rank) => {
+                    return <option key={rank} value={rank}>{rank}</option>
                   })
                 }
-              </FormControl>
-            </FormGroup>
-          });
-    console.log('this is el',el);
-    return (
-      <form>
-        {el}
-        <Button type="submit" bsStyle="success">
-          Show Me { this.props.active }
-        </Button>
-      </form>
-    )
+              })()
+            }
+          </FormControl>
+        </FormGroup>
+      });
+    return <form>
+      {el}
+      <Button type="submit" bsStyle="success">
+        Show Me { this.props.active }
+      </Button>
+    </form>
   }
-
 }
 
 // map the portion of the state tree desired
