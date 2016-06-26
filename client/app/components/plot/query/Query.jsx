@@ -29,7 +29,6 @@ class Query extends React.Component {
   }
   
   _checkQuery() {
-    console.log(this.state);
     if (this.state.path > 11 && this.state.count >= 2) {
       return 'success';
     } else {
@@ -40,6 +39,7 @@ class Query extends React.Component {
   _updateQuery(e) {
     console.log('what is there to do?', e.target.value, typeof e.target.key);
     let piece = this.state.path;
+    console.log('piece',piece,'active',this.props.active);
     switch (this.props.active) {
       case 'STATES':
         // fresh path (hack for state)
