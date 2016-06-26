@@ -15,15 +15,11 @@ class SmartButton extends React.Component {
   }
   
   _handleClick() {
-    console.log('do i have the query path?', this.props.build);
     let query = {};
     let sendQuery = this.props.dispatch;
-    console.log('sendQuery',sendQuery);
     switch (this.props.active) {
       case 'STATES':
-        console.log('before concatenating',query);
         query.path = 'states/' + this.props.build.STATE + '/' + this.props.build.RANK
-        console.log('after concatenating',query);
         return sendQuery(loadQuery(query));
       case 'GROWTH':
         query.path = 'growth/' + this.props.build.YEAR + '/' + this.props.build.RANK + '/' + this.props.build.PRODUCT
@@ -32,9 +28,7 @@ class SmartButton extends React.Component {
         // 'POPULATION'
         query.path = 'population/' + this.props.build.BANK + '/' + this.props.build.YEAR
         return sendQuery(loadQuery(query));
-    }
-    
-    // this.props.dispatch(loadQuery(this.props.build));
+    }    
   }
   
   render() {
