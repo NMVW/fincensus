@@ -187,14 +187,41 @@ exports.states = function(rank, product, year, res) {
 };
 
 exports.initialize = function(res) {
-  // find API-valid states,
+  //// Consumer Complaints DB
+  var companies = []
+  var products = [];
   
-  // products,
-  
-  // banks,
-  
-  // years
-  
-  // return the bounds for queries to client
-  res.send();
+  // find API-valid banks,
+  request(baseComplaints + '?$select=company')
+    .then(function(companies) {
+      companies = JSON.parse(companies).reduce(function(uniqs, row) {
+        if (!uniqs[row.company]) {
+          uniqs[row.company] = true;
+        }
+        return uniqs;
+      }, {});
+      // products,
+      request(baseComplaints + '?$select=product')
+        .then(function(products) {
+          products = JSON.parse().reduce(function(uniqs, row) {
+            if (!uniqs[row.product]) {
+              uniqs[row.product] = true;
+            }
+            return uniqs;
+          }, {});
+          var result = {
+            companies: companies,
+            products: products
+          };
+          console.log(result);
+          // return the bounds for queries to client
+          res.send(result);
+        })
+        .catch(function(err) {
+          console.log(err);
+        });
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
 };
