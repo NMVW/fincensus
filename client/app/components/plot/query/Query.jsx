@@ -19,7 +19,7 @@ class Query extends React.Component {
     if (this.fetching) {
       this.setState({});
     }
-    if (this.state.path > 11 && this.state.count >= 2) {
+    if (this.state.path > 11) {
       return 'success';
     } else {
       return 'error';
