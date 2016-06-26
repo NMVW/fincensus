@@ -50,9 +50,6 @@ class Query extends React.Component {
         RANK: val
       });
     }
-    // no need for value checking, we know it is valid
-    // simply add value to query as property {STATE:'FL', RANK: 3}
-    // smart button will determine how to assemble piece into API endpoint
   }
 
   render() {
