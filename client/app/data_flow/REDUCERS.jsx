@@ -45,7 +45,8 @@ function fincensusReducer(state = initialState, action) {
       })
     case UPDATE_QUERY:
       return Object.assign({}, state, {
-        query: action.query
+        query: action.query,
+        fetching: action.fetching
       })
     case LOAD_QUERY:
       return Object.assign({}, state, {

@@ -5,31 +5,20 @@ import { FormControl } from 'react-bootstrap';
 import { ControlLabel } from 'react-bootstrap';
 import SmartButton from './SmartButton.jsx';
 
-// Exposed API Endpoints
-// /api/states/:state/:rank
-// /api/population/:bank/:year
-// /api/growth/:year/:rank/:product
-
 class Query extends React.Component {
   constructor(props) {
     super(props);
-    // query build path
-    this.state = {
-      path: this.props.active,
-      count: 0
-    };
+    // query elements for path
+    this.state = {};
     this._checkQuery = this._checkQuery.bind(this);
-    this._submitQuery = this._submitQuery.bind(this);
     this._updateQuery = this._updateQuery.bind(this);
   }
   
-  _submitQuery(query) {
-    query.preventDefault();
-    console.log('form inputs please?', Object.keys(query));
-  }
-  
   _checkQuery() {
-    console.log(this.state);
+    // clear out component query after submission
+    if (this.fetching) {
+      this.setState({});
+    }
     if (this.state.path > 11 && this.state.count >= 2) {
       return 'success';
     } else {
@@ -38,55 +27,32 @@ class Query extends React.Component {
   }
   
   _updateQuery(e) {
-    console.log('what is there to do?', e.target.value, typeof e.target.key);
-    let piece = this.state.path;
-    switch (this.props.active) {
-      case 'STATES':
-        // fresh path (hack for state)
-        if (piece === 'STATES' && this.props.states.indexOf(e.target.value) !== -1) {
-          this.setState({
-            path: piece + '/' + e.target.value,
-            count: ++this.state.count
-          });
-        // 2/3 params filled out (hack for rank)
-        } else if (piece.length === 9 && [1,2,3,4,5,6,7,8,9,10].indexOf(+e.target.value) !== -1) {
-          this.setState({
-            path: piece + '/' + e.target.value,
-            count: ++this.state.count
-          });
-        }
-      case 'GROWTH':
-        // fresh path
-        if (piece === 'GROWTH' && this.props.years.indexOf(e.target.value) !== -1) {
-          this.setState({
-            path: piece + '/' + e.target.value,
-            count: ++this.state.count            
-          });
-        } else if (piece.length === 11 && [1,2,3,4,5,6,7,8,9,10].indexOf(+e.target.value) !== -1) {
-          this.setState({
-            path: piece + '/' + e.target.value,
-            count: ++this.state.count
-          });
-        } else if (piece.length > 12 && this.props.products.indexOf(e.target.value) !== -1) {
-          this.setState({
-            path: piece + '/' + e.target.value,
-            count: ++this.state.count
-          });
-        }
-      default:
-        //population
-        if (piece === 'POPULATION' && this.props.banks.indexOf(e.target.value) !== -1) {
-          this.setState({
-            path: piece + '/' + e.target.value,
-            count: ++this.state.count
-          });
-        } else if (piece.length > 11 && this.props.years.indexOf(e.target.value) !== -1) {
-          this.setState({
-            path: piece + '/' + e.target.value,
-            count: ++this.state.count
-          });
-        }
+    let ranks = [1,2,3,4,5,6,7,8,9,10];
+    let val = e.target.value;
+    if (this.props.states.indexOf(val) !== -1) {
+      this.setState({
+        STATE: val
+      });
+    } else if (this.props.banks.indexOf(val) !== -1) {
+      this.setState({
+        BANK: val
+      });
+    } else if (this.props.products.indexOf(val) !== -1) {
+      this.setState({
+        PRODUCT: val
+      });
+    } else if (this.props.years.indexOf(+val) !== -1) {
+      this.setState({
+        YEAR: val
+      });
+    } else if (ranks.indexOf(+val) !== -1) {
+      this.setState({
+        RANK: val
+      });
     }
+    // no need for value checking, we know it is valid
+    // simply add value to query as property {STATE:'FL', RANK: 3}
+    // smart button will determine how to assemble piece into API endpoint
   }
 
   render() {
@@ -142,7 +108,8 @@ const mapStateToProps = (store) => {
     banks: store.fincensusReducer.banks,
     products: store.fincensusReducer.products,
     active: store.fincensusReducer.active,
-    query: store.fincensusReducer.query
+    query: store.fincensusReducer.query,
+    fetching: store.fincensusReducer.fetching
   };
 };
 
