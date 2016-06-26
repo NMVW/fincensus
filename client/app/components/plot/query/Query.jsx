@@ -10,35 +10,60 @@ import { Button } from 'react-bootstrap';
 // /api/pop/:bank/:year
 // /api/growth/:year/:rank/:product
 
-export default class Query extends React.Component {
+class Query extends React.Component {
   constructor(props) {
     super(props);
   }
   
   componentWillMount() {
-    this.props.param
+    this.props;
   }
 
   render() {
-    
-    return (
-      
-      
-      <form>
-        <FormGroup controlId="formControlsSelect">
-          <ControlLabel>{ this.props.param }</ControlLabel>
+    let self = this;
+    let ranks = [1,2,3,4,5,6,7,8,9,10];
+    let params = this.props.params;
+    let el =
+      params.map((param) => {
+        return <FormGroup controlId={"formControlsSelect" + param}>
+          <ControlLabel>{ param }</ControlLabel>
           <FormControl componentClass="select" placeholder="select">
-            <option value="select">select { this.props.param }</option>
-            <option value="other">...</option>
+            {
+              (() => {
+              
+                if (param === 'STATE') {
+                  return self.props.states.map((state) => {
+                    return <option key={state} value={state}>{state}</option>
+                  })
+                } else if (param === 'YEAR') {
+                  return self.props.years.map((year) => {
+                    return <option key={year} value={year}>{year}</option>
+                  })
+                } else if (param === 'BANK') {
+                  return self.props.banks.map((bank) => {
+                    return <option key={bank} value={bank}>{bank}</option>
+                  })
+                } else if (param === 'PRODUCT') {
+                  return self.props.products.map((product) => {
+                    return <option key={product} value={product}>{product}</option>
+                  })
+                } else {
+                  return ranks.map((rank) => {
+                    return <option key={rank} value={rank}>{rank}</option>
+                  })
+                }
+              })()
+            }
           </FormControl>
         </FormGroup>
-        <Button type="submit" bsStyle="success">
-          Show Me
-        </Button>
-      </form>
-    )
+      });
+    return <form>
+      {el}
+      <Button type="submit" bsStyle="success">
+        Show Me { this.props.active }
+      </Button>
+    </form>
   }
-
 }
 
 // map the portion of the state tree desired

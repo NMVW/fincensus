@@ -42,9 +42,8 @@ export function loadParams() {
       },
       credentials: 'same-origin'
     })
-    .then((init) => init.text())
+    .then((body) => body.json())
     .then((params) => {
-      console.log('incoming params',params);
       store.dispatch(updateParams(params, false));
     }).catch((error) => {
       console.error(error);
@@ -67,7 +66,7 @@ export function loadQuery(query) {
     },
     credentials: 'same-origin'
   })
-  .then((init) => init.text())
+  .then((body) => body.json())
   .then((queryResults) => {
     console.log('incoming query results', queryResults);
     store.dispatch(updateQuery(queryResults, false));
