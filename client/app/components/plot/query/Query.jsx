@@ -10,7 +10,7 @@ import { Button } from 'react-bootstrap';
 // /api/pop/:bank/:year
 // /api/growth/:year/:rank/:product
 
-export default class Query extends React.Component {
+class Query extends React.Component {
   constructor(props) {
     super(props);
   }

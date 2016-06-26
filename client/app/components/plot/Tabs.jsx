@@ -6,7 +6,7 @@ import { Tabs } from 'react-bootstrap';
 import { Tab } from 'react-bootstrap';
 import Query from './query/Query.jsx';
 
-export default class ContainerTabs extends React.Component {
+class ContainerTabs extends React.Component {
   constructor(props) {
     super(props);
     this._handleSelect = this._handleSelect.bind(this);
