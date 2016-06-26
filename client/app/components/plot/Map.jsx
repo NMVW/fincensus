@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 export default class Map extends React.Component {
   constructor(props) {
@@ -52,8 +53,17 @@ export default class Map extends React.Component {
   }
 
   render() {
-    
     return <div id="plot"></div>
   }
 
 }
+
+// map the portion of the state tree desired
+const mapStateToProps = (store) => {
+  return {
+    query: store.fincensusReducer.query,
+  };
+};
+
+// connect the desired state to the relevant component
+export default connect(mapStateToProps)(Map);

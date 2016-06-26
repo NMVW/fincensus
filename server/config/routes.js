@@ -5,7 +5,7 @@ module.exports = function(app) {
   /* User Routes */
 
   // (Product) of [rank] most complaints in [state] of
-  app.route('/api/complaints/:state/:rank')
+  app.route('/api/states/:state/:rank')
     .get(function(req, res) {
       worker.complaintsToProduct(req.params.state, req.params.rank, res); 
     });
@@ -17,7 +17,7 @@ module.exports = function(app) {
    });
 
   // (State) of [rank] most growth with most complaints about [product]
-  app.route('/api/states/:year/:rank/:product')
+  app.route('/api/growth/:year/:rank/:product')
     .get(function(req, res) {
       worker.states(+req.params.rank, req.params.product, +req.params.year, res)
     });
