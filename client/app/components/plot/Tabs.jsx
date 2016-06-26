@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { loadParams, setActive } from '../../data_flow/ACTIONS.jsx';
+
 import { Tabs } from 'react-bootstrap';
 import { Tab } from 'react-bootstrap';
 import Query from './query/Query.jsx';
@@ -7,14 +9,32 @@ import Query from './query/Query.jsx';
 export default class ContainerTabs extends React.Component {
   constructor(props) {
     super(props);
+    this._handleSelect = this._handleSelect.bind(this);
+  }
+  
+  componentWillMount() {
+    this.props.dispatch(loadParams());
+  }
+  
+  _handleSelect(key) {
+    this.props.dispatch(setActive(key));
   }
 
   render() {
     
-    return <Tabs defaultActiveKey={"STATE"} id="controlled-tabs">
-      <Tab eventKey={"STATE"} title="STATE">What are people complaining about in <Query param="STATE"/> ?</Tab>
-      <Tab eventKey={"POP"} title="POPULATION">How many people were born in <Query param="YEAR" /> in all the states that <Query param="BANK" />received a consumer complaint in ?</Tab>
-      <Tab eventKey={"GROWTH"} title="GROWTH">How many complaints about <Query param="PRODUCT" /> are there in the fastest growing state ?</Tab>
+    return <Tabs defaultActiveKey={this.props.active} onSelect={this._handleSelect} id="controlled-tabs">
+      <Tab eventKey={"STATE"} title="STATE">
+        What is the <strong>RANK</strong> most complained about product in <strong>STATE</strong>?
+        <Query params={["STATE", "RANK"]}/>
+      </Tab>
+      <Tab eventKey={"POPULATION"} title="POPULATION">
+        How many people were born in states where <strong>BANK</strong> had a complaint in <strong>YEAR</strong>.
+        <Query params={["YEAR", "BANK"]} />
+      </Tab>
+      <Tab eventKey={"GROWTH"} title="GROWTH">
+        Number of complaints about <strong>PRODUCT</strong> in the <strong>RANK</strong> fastest growing state.
+        <Query params={["PRODUCT", "RANK"]} />
+      </Tab>
     </Tabs>
   }
 
