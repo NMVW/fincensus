@@ -71,6 +71,7 @@ export function loadQuery(query) {
     console.log('incoming query results', queryResults);
     store.dispatch(updateQuery(queryResults, false));
   }).catch((error) => {
+    store.dispatch(updateQuery(null, false));
     console.error(error);
   });
   
