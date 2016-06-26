@@ -1,7 +1,8 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Tabs } from 'react-bootstrap';
 import { Tab } from 'react-bootstrap';
-import Query from './Query.jsx';
+import Query from './query/Query.jsx';
 
 export default class ContainerTabs extends React.Component {
   constructor(props) {
@@ -18,3 +19,14 @@ export default class ContainerTabs extends React.Component {
   }
 
 }
+
+// map the portion of the state tree desired
+const mapStateToProps = (store) => {
+  return {
+    fetching: store.fincensusReducer.fetching,
+    active: store.fincensusReducer.active,
+  };
+};
+
+// connect the desired state to the relevant component
+export default connect(mapStateToProps)(ContainerTabs);
