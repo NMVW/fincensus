@@ -38,7 +38,7 @@ class Map extends React.Component {
       fields.z = [+newProps.query.product.count_issue];
       fields.text = ['Complaints in ' + newProps.query.state];
       fields.zmin = 0;
-      fields.zmax = 10000;
+      fields.zmax = 20000;
       fields.mapTitle = '#' + newProps.query.rank + ' Product: ' + newProps.query.product.product;
       fields.colorbarTitle = '# of Complaints';
     } else if (this.props.active === 'GROWTH') {
@@ -47,17 +47,17 @@ class Map extends React.Component {
       fields.z = [newProps.query.top.complaints];
       fields.text = ['Complaints in ' + newProps.query.state];
       fields.zmin = 0;
-      fields.zmax = 10000;
+      fields.zmax = 20000;
       fields.mapTitle = 'Complaints in #' + newProps.query.rank + ' Growing State';
       fields.colorbarTitle = '# of Complaints';
     } else if (this.props.active === 'POPULATION') {
       // update fields for rendering
-      fields.locations = [this.props.states];
-      fields.z = [newProps.query.births];
-      fields.text = [newProps.query.states + ' states'];
+      fields.locations = this.props.states;
+      fields.z = this.props.states.map((s) => newProps.query.births);
+      fields.text = this.props.states.map((s) => newProps.query.states + ' states');
       fields.zmin = 0;
-      fields.zmax = 10000;
-      fields.mapTitle =  'Births in ' + newProps.query.year + ': ' + newProps.query.bank;
+      fields.zmax = 5000000;
+      fields.mapTitle = 'Births in ' + newProps.query.year + ': ' + newProps.query.bank;
       fields.colorbarTitle = '# of Births';
     }
     
@@ -156,7 +156,6 @@ class Map extends React.Component {
   render() {
     return <div id="plot"></div>
   }
-
 }
 
 // map the portion of the state tree desired
