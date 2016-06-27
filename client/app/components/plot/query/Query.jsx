@@ -19,7 +19,7 @@ class Query extends React.Component {
     if (this.fetching) {
       this.setState({});
     }
-    if (this.state.path > 11 && this.state.count >= 2) {
+    if (this.state.path > 11) {
       return 'success';
     } else {
       return 'error';
@@ -50,9 +50,6 @@ class Query extends React.Component {
         RANK: val
       });
     }
-    // no need for value checking, we know it is valid
-    // simply add value to query as property {STATE:'FL', RANK: 3}
-    // smart button will determine how to assemble piece into API endpoint
   }
 
   render() {
