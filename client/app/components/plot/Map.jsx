@@ -109,7 +109,6 @@ class Map extends React.Component {
       const unpack = (rows, key) => {
           return rows.map((row) => row[key]);
       }
-      console.log('incoming data for map', rows);
 
       let data = [{
           type: 'choropleth',

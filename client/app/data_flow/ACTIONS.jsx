@@ -68,7 +68,6 @@ export function loadQuery(query) {
   })
   .then((body) => body.json())
   .then((queryResults) => {
-    console.log('incoming query results:', queryResults, 'from query',query);
     store.dispatch(updateQuery(queryResults, false));
   }).catch((error) => {
     store.dispatch(updateQuery(null, false));

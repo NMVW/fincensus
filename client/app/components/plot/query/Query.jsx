@@ -10,19 +10,28 @@ class Query extends React.Component {
     super(props);
     // query elements for path
     this.state = {};
-    this._checkQuery = this._checkQuery.bind(this);
     this._updateQuery = this._updateQuery.bind(this);
+    this._populate = this._populate.bind(this);
   }
   
-  _checkQuery() {
-    // clear out component query after submission
-    if (this.fetching) {
-      this.setState({});
-    }
-    if (this.state.path > 11) {
-      return 'success';
-    } else {
-      return 'error';
+  _populate() {
+    switch (this.props.active) {
+      case 'STATES':
+        this.setState({
+          STATE: this.props.states[0],
+          RANK: 1
+        });
+      case 'GROWTH':
+        this.setState({
+          PRODUCT: this.props.products[0],
+          RANK: 1,
+          YEAR: this.props.products[0]
+        });
+      default:
+        this.setState({
+          YEAR: this.props.years[0],
+          BANK: this.props.banks[0]
+        });
     }
   }
   
