@@ -60,14 +60,18 @@ class Query extends React.Component {
       });
     }
   }
-
+  
+  componentDidMount() {
+    this._populate();
+  }
+  
   render() {
     let self = this;
     let ranks = [1,2,3,4,5,6,7,8,9,10];
     let show = this.props.active === 'STATES' ? 'Product': this.props.active === 'GROWTH'? 'Issues': 'Births';
     let el =
       this.props.params.map((param) => {
-        return <FormGroup validationState={this._checkQuery()} controlId={"formControlsSelect" + param}>
+        return <FormGroup controlId={"formControlsSelect" + param}>
           <ControlLabel>{ param }</ControlLabel>
           <FormControl onChange={this._updateQuery} componentClass="select" placeholder="select">
             {
