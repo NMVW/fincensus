@@ -1,12 +1,12 @@
 var request = require('request-promise');
 
 // helpers
-var stateToFips = require('./utils.js').stateToFips;
-var periods = require('./utils.js').periods;
-var sumReduce = require('./utils.js').sumReduce;
-var asyncReduce = require('./utils.js').asyncReduce;
-var baseComplaints = require('./utils.js').baseComplaints;
-var baseCensus = require('./utils.js').baseCensus;
+var stateToFips = require('../utils.js').stateToFips;
+var periods = require('../utils.js').periods;
+var sumReduce = require('../utils.js').sumReduce;
+var asyncReduce = require('../utils.js').asyncReduce;
+var baseComplaints = require('../utils.js').baseComplaints;
+var baseCensus = require('../utils.js').baseCensus;
 
 // include app token in requests
 var optionA = {
