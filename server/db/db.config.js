@@ -1,4 +1,5 @@
 /* Database configuration */
+var worker = require('./worker');
 var mysql = require('mysql');
 var Sequelize = require('sequelize');
 var sequelize = null;
@@ -17,13 +18,17 @@ var State = sequelize.define('State', Schemas.State);
 var Population = sequelize.define('Population', Schemas.Population);
 var Complaint = sequelize.define('Complaint', Schemas.Complaint);
 var Product = sequelize.define('Product', Schemas.Product);
-var Type = sequelize.define('Type', Schemas.Type);
+var Issue = sequelize.define('Issue', Schemas.Issue);
+var Submission = sequelize.define('Submission', Schemas.Submission);
 
 /* Define relationships */
 // 1:m
 Complaint.belongsTo(Bank);
 Complaint.belongsTo(Product);
-Type.belongsTo(Product);
+Complaint.belongsTo(State);
+Complaint.belongsTo(Issue);
+Complaint.belongsTo(Submission);
+
 Population.belongsTo(State);
 
 // m:n
@@ -37,46 +42,54 @@ sequelize.sync({force:false});
 // paginate results to max 200 per request
 
 var initStatesTable = require('./seed/state.seed').initStatesTable;
-var initPopulationsTable = require('./seed/population.seed').initPopulationsTable;
 var initBanksTable = require('./seed/bank.seed').initBanksTable;
+var initPopulationsTable = require('./seed/population.seed').initPopulationsTable;
+var initProductsTable = require('./seed/product.seed').initProductsTable;
+var initIssuesTable = require('./seed/product.seed').initIssuesTable;
+var initSubmissionsTable = require('./seed/product.seed').initSubmissionsTable;
+var initComplaintsTable = require('./seed/product.seed').initComplaintsTable;
+/* Build Re-use of init functions to handle creation OR updates */
 
-
-
-
-initStatesTable(State).then(function(res) {
+// ORDER OF INITIALIZATION (foreign key constraints)
+// States -> Banks -> Populations -> Products -> Issues -> Submissions -> Complaints
+initStatesTable(State)
+  .then(function(res) {
+    console.log('States seeded.', res);
+    return initBanksTable(Bank);
+  })
+  .then(function(res) {
+    console.log('Banks seeded.', res);
+    return initPopulationsTable(Population);
+  })
+  .then(function(res) {
+    console.log('Populations seeded.', res);
+    return initProductsTable(Product);
+  })
+  .then(function(res) {
+    console.log('Products seeded.', res);
+    return initIssuesTable(Issue);
+  })
+  .then(function(res) {
+    console.log('Issues seeded.', res);
+    return initSubmissionsTable(Submission);
+  })
+  .then(function(res) {
+    console.log('Submissions seeded.', res);
+    return initComplaintsTable(Complaint);
+  })
+  .then(function(res) {
+    console.log('Complaints seeded.', res);
+    return Promise.resolve('Database seeded.');
+  })
+  .catch(function(err) {
+    console.log('Seeding failed.', err);
+    return Promise.reject('Database not seeded.');
+  });
   
-  initBanksTable(Bank)
-    .then(function(res) {
-      console.log('Banks seeded.', res);
-    })
-    .catch(function(err) {
-      console.log('Banks not seeded properly!', err);
-    });
-// initPopulationsTable(Population)
-//     .then(function(res) {
-//       console.log('response from population chain:', res);
-//     })
-//     .catch(function(err) {
-//       console.log('error on child population chain:',err)
-//     }); 
-
-})
-.catch(function(err) {
-  console.log('error on states chain:', err);
-});
-// State.create({capital:'no', name:'no'})
-//   .then(function(state) {
-//     console.log('is this the state object from the promise?', state.dataValues);
-//   });
-// State.find({where:{capital:'GA'}}).then(function(state) {
-//   Population.create({population: 101, year: 2020}).then(function(pop) {
-//     return pop.setState('GA');
-//   }); 
-// })
-
 exports.Bank = Bank;
 exports.State = State;
 exports.Population = Population;
 exports.Complaint = Complaint;
 exports.Product = Product;
-exports.Type = Type;
+exports.Submission = Submission;
+exports.Issue = Issue;
