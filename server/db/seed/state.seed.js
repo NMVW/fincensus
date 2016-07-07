@@ -7,10 +7,10 @@ function initStatesTable(State) {
     promisedStates = promisedStates.concat(
       State.create({capital: stateCapital, name: stateToName[stateCapital]})
         .then(function(state) {
-          console.log('States seeded.', res);
+          console.log('States initialized.', res);
         })
         .catch(function(err) {
-          console.log('States not seeded properly.', err);
+          console.log('States not initialized properly.', err);
         })
     );
   }

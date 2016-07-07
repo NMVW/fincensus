@@ -3,14 +3,12 @@ var request = require('request-promise');
 var baseComplaints = 'https://data.consumerfinance.gov/resource/jhzv-w97w.json?';
 
 function initProductsTable(Product) {
-  console.log('in init function', Product.toString());
   // get all products from consumer complaints DB
-  return request(baseComplaints + '$select=company&$group=company&$limit=50000')
+  return request(baseComplaints + '$select=product&$group=product')
     .then(function(data) {
       var products = JSON.parse(data);
-      console.log('products incoming:',products);
-      var promisedProducts = products.map(function(Product) {
-        return Product.create({name: Product.company});
+      var promisedProducts = products.map(function(product) {
+        return Product.create({name: product.product});
       });
       console.log('Products initialized.');
       return Promise.all(promisedProducts);

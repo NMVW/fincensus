@@ -34,10 +34,10 @@ function initPopulationsTable(Population) {
                       
                       return Population.create({population: pop, year: year, births: births, deaths: deaths})
                         .then(function(p) {
-                          console.log('success population creation:', p);
+                          console.log('success population initialized:', p);
                           return state ? p.setState(state): p.setState('Non-Con');
                         }).catch(function(err) {
-                          console.log('error at population creation:', err);
+                          console.log('error with population initialization:', err);
                         });
                       
                     })(Number(total), date, Number(growth[0][0]), Number(growth[0][1]), fipsToState[fips]);
