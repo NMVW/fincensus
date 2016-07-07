@@ -37,16 +37,11 @@ exports.Complaint = {
   cid: {
     type: Sequelize.INTEGER,
     primaryKey: true,
-    autoIncrement: true,
+    autoIncrement: false,
     allowNull: false
   },
   date: Sequelize.DATE,
   report: Sequelize.STRING,
-  issue: Sequelize.STRING,
-  subIssue: Sequelize.STRING,
-  submission: Sequelize.STRING,
-  public_response: Sequelize.STRING,
-  private_response: Sequelize.STRING
 };
 
 exports.Product = {
@@ -58,11 +53,20 @@ exports.Product = {
     }
 };
 
-exports.Type = {
+exports.Issue = {
   name: {
       type: Sequelize.STRING,
       primaryKey: true,
       autoIncrement: false,
       allowNull: false
     }
+};
+
+exports.Submission = {
+  via: {
+    type: Sequelize.STRING,
+    primaryKey: true,
+    autoIncrement: false,
+    allowNull: false
+  }
 };
