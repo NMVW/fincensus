@@ -2,13 +2,21 @@
 // NOTE: in case of server outage, just reset
 var schedule = require('node-schedule');
 
+var Bank = require('./db.config').Bank;
+var State = require('./db.config').State;
+var Population = require('./db.config').Population;
+var Complaint = require('./db.config').Complaint;
+var Product = require('./db.config').Product;
+var Submission = require('./db.config').Submission;
+var Issue = require('./db.config').Issue;
+
 var initStatesTable = require('./seed/state.seed').initStatesTable;
 var initBanksTable = require('./seed/bank.seed').initBanksTable;
 var initPopulationsTable = require('./seed/population.seed').initPopulationsTable;
 var initProductsTable = require('./seed/product.seed').initProductsTable;
-var initIssuesTable = require('./seed/product.seed').initIssuesTable;
-var initSubmissionsTable = require('./seed/product.seed').initSubmissionsTable;
-var initComplaintsTable = require('./seed/product.seed').initComplaintsTable;
+var initIssuesTable = require('./seed/issue.seed').initIssuesTable;
+var initSubmissionsTable = require('./seed/submission.seed').initSubmissionsTable;
+var initComplaintsTable = require('./seed/complaint.seed').initComplaintsTable;
 
 // States will never change?
 
@@ -19,13 +27,6 @@ exports.populationUpdate = schedule.scheduleJob({
   hour: 0,
   minute: 0
 }, initPopulationsTable.bind(null, Population));
-
-// Complaints will always update 10k results every 6 hours until reached max
-// offset should increment by 10000 each query (start offset=0)
-exports.complaintsUpdate = schedule.scheduleJob({
-  hour: 6,
-  minute: 0
-}, initComplaintsTable.bind(null, Complaint, offset + 10000));
 
 // Banks will change every 1 year when taxes roll around
 exports.banksUpdate = schedule.scheduleJob({
@@ -58,3 +59,16 @@ exports.submissionsUpdate = schedule.scheduleJob({
   hour: 0,
   minute: 0
 }, initSubmissionsTable.bind(null, Submission));
+
+// Complaints will always update 10k results every 6 hours until reached max
+// offset should increment by 10000 each query (start offset=0)
+var offset = 0;
+function complaintsOffset() {
+  offset += 10000;
+  return initComplaintsTable(Complaint, offset);
+};
+
+exports.complaintsUpdate = schedule.scheduleJob({
+  hour: 6,
+  minute: 0
+}, complaintsOffset);
