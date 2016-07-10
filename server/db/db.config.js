@@ -23,7 +23,7 @@ var Submission = sequelize.define('Submission', Schemas.Submission);
 
 /* Define relationships */
 // 1:m
-Complaint.belongsTo(Bank);
+Complaint.belongsTo(Bank, {constraints: false}); // banks and complaints are not 1-to-1 and onto
 Complaint.belongsTo(Product);
 Complaint.belongsTo(State);
 Complaint.belongsTo(Issue);
@@ -37,7 +37,7 @@ Bank.belongsToMany(State, {through: 'BankState'});
 
 // creates these tables in MySQL if they don't already exist. Pass in {force: true}
 // to drop all existing tables and make new ones. ie: sequelize.sync({force: true});
-sequelize.sync({force:false});
+sequelize.sync({force:true});
 
 // paginate results to max 200 per request
 
@@ -45,45 +45,44 @@ var initStatesTable = require('./seed/state.seed').initStatesTable;
 var initBanksTable = require('./seed/bank.seed').initBanksTable;
 var initPopulationsTable = require('./seed/population.seed').initPopulationsTable;
 var initProductsTable = require('./seed/product.seed').initProductsTable;
-var initIssuesTable = require('./seed/product.seed').initIssuesTable;
-var initSubmissionsTable = require('./seed/product.seed').initSubmissionsTable;
-var initComplaintsTable = require('./seed/product.seed').initComplaintsTable;
+var initIssuesTable = require('./seed/issue.seed').initIssuesTable;
+var initSubmissionsTable = require('./seed/submission.seed').initSubmissionsTable;
+var initComplaintsTable = require('./seed/complaint.seed').initComplaintsTable;
 /* Build Re-use of init functions to handle creation OR updates */
 
 // ORDER OF INITIALIZATION (foreign key constraints)
 // States -> Banks -> Populations -> Products -> Issues -> Submissions -> Complaints
-initStatesTable(State)
-  .then(function(res) {
-    console.log('States seeded.', res);
-    return initBanksTable(Bank);
-  })
-  .then(function(res) {
-    console.log('Banks seeded.', res);
-    return initPopulationsTable(Population);
-  })
-  .then(function(res) {
-    console.log('Populations seeded.', res);
-    return initProductsTable(Product);
-  })
-  .then(function(res) {
-    console.log('Products seeded.', res);
+initProductsTable(Product)
+  .then(function(product) {
+    console.log('Products seeded.', product);
     return initIssuesTable(Issue);
   })
-  .then(function(res) {
-    console.log('Issues seeded.', res);
+  .then(function(issue) {
+    console.log('Issues seeded.', issue);
     return initSubmissionsTable(Submission);
   })
-  .then(function(res) {
-    console.log('Submissions seeded.', res);
+  .then(function(submission) {
+    console.log('Submissions seeded.', submission);
+    return initStatesTable(State);
+  })
+  .then(function(state) {
+    console.log('States seeded.', state);
+    return initBanksTable(Bank, State);
+  })
+  .then(function(bank) {
+    console.log('Banks seeded.', bank);
+    return initPopulationsTable(Population, State);
+  })
+  .then(function(population) {
+    console.log('Populations seeded.', population);
     return initComplaintsTable(Complaint);
   })
-  .then(function(res) {
-    console.log('Complaints seeded.', res);
-    return Promise.resolve('Database seeded.');
+  .then(function(complaint) {
+    console.log('Complaints seeded.', complaint);
+    return Promise.resolve(true);
   })
   .catch(function(err) {
-    console.log('Seeding failed.', err);
-    return Promise.reject('Database not seeded.');
+    console.log('Error in seed chain', err);
   });
   
 exports.Bank = Bank;
