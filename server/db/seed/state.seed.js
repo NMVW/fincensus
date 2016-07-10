@@ -7,7 +7,7 @@ function initStatesTable(State) {
     promisedStates = promisedStates.concat(
       State.create({capital: stateCapital, name: stateToName[stateCapital]})
         .then(function(state) {
-          console.log('States initialized.', res);
+          console.log('States initialized.', state);
         })
         .catch(function(err) {
           console.log('States not initialized properly.', err);
