@@ -6,7 +6,7 @@ var PERIODS = require('./utils').PERIODS;
 var fipsToState = require('./utils').fipsToState;
 var stateToFips = require('./utils').stateToFips;
 
-function initPopulationsTable(Population) {
+function initPopulationsTable(Population, State) {
   var promisedDates = [];
     
   // generate population stats for each year
@@ -14,7 +14,10 @@ function initPopulationsTable(Population) {
     
     // capture date
     (function(date) {
+      
       promisedDate = promisedDates.concat(
+        
+        // query for population
         request(baseCensus + 'population?get=POP&for=state:*&DATE=' + DATES[date] + '&key=' + process.env.KEY)
           .then(function(data) {
 
@@ -22,21 +25,27 @@ function initPopulationsTable(Population) {
                       
             var promisedPops = populations.map(function(population) {
               
-              // capture population
+              // capture population in year (date)
               return (function(total, fips, date) {
                 
+                // query for state (fips) growth in year (date)
                 return request(baseCensus + 'components?get=BIRTHS,DEATHS&for=state:' + fips + '&PERIOD=' + PERIODS[date] + '&key=' + process.env.KEY)
                   .then(function(data) {
                     var growth = JSON.parse(data).slice(1);
                     
                     // capture population, year, births, deaths, state capital
-                    return (function(pop, year, births, deaths, state) {
+                    return (function(total, year, births, deaths, state) {
                       
-                      return Population.create({population: pop, year: year, births: births, deaths: deaths})
-                        .then(function(p) {
-                          console.log('success population initialized:', p);
-                          return state ? p.setState(state): p.setState('Non-Con');
-                        }).catch(function(err) {
+                      return Population.create({population: total, year: year, births: births, deaths: deaths})
+                        .then(function(pop) {
+                          console.log('success population initialized:', pop);
+                          return State.findAll({where: {capital: state}})
+                            .then(function(stateModel) {
+                              console.log('state found for population', JSON.stringify(stateModel));
+                              return stateModel ? pop.setState(stateModel[0]): pop.setState('Non-Continental');
+                            });
+                        })
+                        .catch(function(err) {
                           console.log('error with population initialization:', err);
                         });
                       
@@ -55,6 +64,7 @@ function initPopulationsTable(Population) {
             console.log(err);
           })
       );     
+      
     })(date);
   }
   return Promise.all(promisedDates); 
