@@ -45,8 +45,8 @@ To build the project from within the root directory from a bash CLI:
 
 ```sh
 npm test
-npm build
-npm dev
+npm run build
+npm run dev
 ```
 This series of commands will run the mocha suite test, build the client files, and serve the client files to `http://localhost:3333`, respectively.
 
