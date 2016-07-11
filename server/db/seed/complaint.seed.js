@@ -49,7 +49,7 @@ function initComplaintsTable(Complaint, State, Bank, Product, Submission, Issue,
                 }));
               promisedAssoc = promisedAssoc.concat(Submission.findAll({where: {via: via}})
                 .then(function(sub) {
-                  console.log('complaint submission:', submission);
+                  console.log('complaint submission:', sub);
 
                   return complaint.setSubmission(sub[0]);
                 }));
