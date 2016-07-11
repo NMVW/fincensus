@@ -41,8 +41,7 @@ function initPopulationsTable(Population, State) {
                           console.log('success population initialized:', pop);
                           return State.findAll({where: {capital: state}})
                             .then(function(stateModel) {
-                              console.log('state found for population', JSON.stringify(stateModel));
-                              return stateModel ? pop.setState(stateModel[0]): pop.setState('Non-Continental');
+                              return stateModel[0] ? pop.setState(stateModel[0]): pop.setState('Non-Continental');
                             });
                         })
                         .catch(function(err) {
