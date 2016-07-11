@@ -34,7 +34,7 @@ export function updateQuery(query, fetching) {
 // ASYNC
 export function loadParams() {
   
-  fetch('/api/initialize', {
+  fetch('/api/v1/initialize', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -53,12 +53,12 @@ export function loadParams() {
 }
 
 export function loadQuery(query) {
-  // // query 
+  // // QUERY API 
   // {
   //   path: 'states/FL/1'
   // }
   
-  fetch('/api/' + query.path, {
+  fetch('/api/v1/' + query.path, {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
