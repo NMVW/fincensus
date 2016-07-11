@@ -23,7 +23,7 @@ var Submission = sequelize.define('Submission', Schemas.Submission);
 
 /* Define relationships */
 // 1:m
-Complaint.belongsTo(Bank, {constraints: false}); // banks and complaints are not 1-to-1 and onto
+Complaint.belongsTo(Bank, {constraints: false});
 Complaint.belongsTo(Product);
 Complaint.belongsTo(State);
 Complaint.belongsTo(Issue);
@@ -75,7 +75,7 @@ initProductsTable(Product)
   })
   .then(function(population) {
     console.log('Populations seeded.', population);
-    return initComplaintsTable(Complaint);
+    return initComplaintsTable(Complaint, State, Bank, Product, Submission, Issue, 0);
   })
   .then(function(complaint) {
     console.log('Complaints seeded.', complaint);
