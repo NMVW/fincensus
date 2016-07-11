@@ -37,7 +37,7 @@ Bank.belongsToMany(State, {through: 'BankState'});
 
 // creates these tables in MySQL if they don't already exist. Pass in {force: true}
 // to drop all existing tables and make new ones. ie: sequelize.sync({force: true});
-sequelize.sync({force:true});
+sequelize.sync({force:false});
 
 // paginate results to max 200 per request
 
