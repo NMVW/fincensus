@@ -1,25 +1,26 @@
-var request = require('request-promise');
-
 // helpers
-var stateToFips = require('../utils.js').stateToFips;
-var periods = require('../utils.js').periods;
-var sumReduce = require('../utils.js').sumReduce;
-var asyncReduce = require('../utils.js').asyncReduce;
-var baseComplaints = require('../utils.js').baseComplaints;
-var baseCensus = require('../utils.js').baseCensus;
+// var sumReduce = require('../utils.js').sumReduce;
+// var asyncReduce = require('../utils.js').asyncReduce;
+var Sequelize = require('sequelize');
+var sequelize = null;
+var models = require('../../db/db.config');
 
-// include app token in requests
-var complaintsRequest = request.defaults({
-  headers: {
-    'X-App-Token': process.env.TOKEN
-  }
-});
+if (process.env.CLEARDB_DATABASE_URL) {
+  //initialize db connection on production server
+  sequelize = new Sequelize(process.env.CLEARDB_DATABASE_URL);
+} else {
+  //initialize db connection on localhost
+  sequelize = new Sequelize('fincensus', 'root', '', {logging: false});
+}
 
-var censusRequest = request.defaults({
-  headers: {
-    'key': process.env.KEY
-  }
-});
+// import database models
+var Bank = models.Bank;
+var State = models.State;
+var Population = models.Population;
+var Complaint = models.Complaint;
+var Product = models.Product;
+var Submission = models.Submission;
+var Issue = models.Issue;
 
 //// (Product) of [rank] most complaints in [state] of
 // inputs: 2 CHAR uppercase string, number OPTIONAL -> output: string
