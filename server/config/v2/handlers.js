@@ -28,20 +28,13 @@ exports.complaintsToProduct = function(state, rank, res) {
   state = state || 'CO';
   rank = rank || 1;
   
-  complaintsRequest(baseComplaints + '?state=' + state + '&$select=product,count(issue)&$group=product')
-    .then(function(data) {
-
-      // extract [rank] most complained about product
-      var products = JSON.parse(data).sort(function(a, b) {return +b.count_issue - +a.count_issue});
-      var select = products[rank - 1];
-
-      var result = {
-        state: state,
-        rank: rank,
-        product: select
-      };
-      // send select to client HERE
-      res.send(result);
+  // TODO: refactor raw SQL to optimized Sequelize query
+  // Complaint.findAll({statecapital: state , offset: rank-1, limit: 1, number: sequelize.fn('COUNT', 'productname') order: 'by number desc'})
+  sequelize.query('SELECT COUNT(productname), productname AS product FROM complaints WHERE statecapital="'+ state +'" GROUP BY productname ORDER BY -COUNT(productname);')
+    .then(function(complaints) {
+      console.log(rank + ' most complained about product in ' + state + ':', complaints[rank - 1][rank - 1].product);
+      var product = complaints[rank - 1][rank - 1].product;
+      res.send(product);
     })
     .catch(function(err) {
       console.log(err);
