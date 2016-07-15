@@ -53,39 +53,39 @@ var initComplaintsTable = require('./seed/complaint.seed').initComplaintsTable;
 // ORDER OF INITIALIZATION (foreign key constraints)
 // States -> Banks -> Populations -> Products -> Issues -> Submissions -> Complaints
 exports.initializeDB = function initializeDatabase() {
-  
-initProductsTable(Product)
-  .then(function(product) {
-    console.log('Products seeded.', product);
-    return initIssuesTable(Issue);
-  })
-  .then(function(issue) {
-    console.log('Issues seeded.', issue);
-    return initSubmissionsTable(Submission);
-  })
-  .then(function(submission) {
-    console.log('Submissions seeded.', submission);
-    return initStatesTable(State);
-  })
-  .then(function(state) {
-    console.log('States seeded.', state);
-    return initBanksTable(Bank, State);
-  })
-  .then(function(bank) {
-    console.log('Banks seeded.', bank);
-    return initPopulationsTable(Population, State);
-  })
-  .then(function(population) {
-    console.log('Populations seeded.', population);
-    return initComplaintsTable(Complaint, State, Bank, Product, Submission, Issue, 0);
-  })
-  .then(function(complaint) {
-    console.log('Complaints seeded.', complaint);
-    return Promise.resolve(true);
-  })
-  .catch(function(err) {
-    console.log('Error in seed chain', err);
-  });
+    
+  return initProductsTable(Product)
+    .then(function(product) {
+      console.log('Products seeded.', product);
+      return initIssuesTable(Issue);
+    })
+    .then(function(issue) {
+      console.log('Issues seeded.', issue);
+      return initSubmissionsTable(Submission);
+    })
+    .then(function(submission) {
+      console.log('Submissions seeded.', submission);
+      return initStatesTable(State);
+    })
+    .then(function(state) {
+      console.log('States seeded.', state);
+      return initBanksTable(Bank, State);
+    })
+    .then(function(bank) {
+      console.log('Banks seeded.', bank);
+      return initPopulationsTable(Population, State);
+    })
+    .then(function(population) {
+      console.log('Populations seeded.', population);
+      return initComplaintsTable(Complaint, State, Bank, Product, Submission, Issue, 0);
+    })
+    .then(function(complaint) {
+      console.log('Complaints seeded.', complaint);
+      return Promise.resolve(true);
+    })
+    .catch(function(err) {
+      console.log('Error in seed chain', err);
+    });
 };
 
 exports.Bank = Bank;
