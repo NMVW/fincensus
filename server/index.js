@@ -6,6 +6,7 @@ require('./config/v1/routes.js')(app, express);
 
 // Uncomment for testing server routes
 // require('./config/v2/handlers.js').complaintsToProduct();
+// require('./config/v2/handlers.js').initialize();
 // require('./config/v2/handlers.js').pop();
 // require('./config/v2/handlers.js').states(2);
 

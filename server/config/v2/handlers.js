@@ -191,30 +191,27 @@ exports.initialize = function(res) {
   var products = [];
   
   // find API-valid banks,
-  complaintsRequest(baseComplaints + '?$select=company&$group=company')
+  return Bank.findAll()
     .then(function(companies) {
-      companies = JSON.parse(companies).map(function(entry) {
-        return entry.company;
+      companies = companies.map(function(company) {
+        return company.dataValues.name;
       });
-      // products,
-      complaintsRequest(baseComplaints + '?$select=product&$group=product')
+      return companies;
+    })
+    .then(function(companies) {
+      return Product.findAll()
         .then(function(products) {
-          products = JSON.parse(products).map(function(entry) {
-            return entry.product;
+          products = products.map(function(product) {
+            return product.dataValues.name;
           });
-          var result = {
-            companies: companies,
-            products: products
-          };
-          console.log(result);
-          // return the bounds for queries to client
-          res.send(result);
+          console.log('Companies AND products', companies, products);
+          res.send({companies: companies, products: products});
         })
         .catch(function(err) {
-          console.log(err);
+          console.log('Error finding products', err);
         });
     })
     .catch(function(err) {
-      console.log(err);
+      console.log('Error finding companies', err);
     });
 };
