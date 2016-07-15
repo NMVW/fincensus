@@ -27,14 +27,26 @@ var Issue = models.Issue;
 exports.complaintsToProduct = function(state, prodRank, res) {
   state = state || 'CO';
   prodRank = prodRank || 1;
-  
+  var queryString = 'SELECT COUNT(productname), productname AS product FROM complaints WHERE statecapital="'+ state +'" GROUP BY productname ORDER BY -COUNT(productname);';
   // TODO: refactor raw SQL to optimized Sequelize query
   // Complaint.findAll({statecapital: state , offset: prodRank-1, limit: 1, number: sequelize.fn('COUNT', 'productname') order: 'by number desc'})
-  sequelize.query('SELECT COUNT(productname), productname AS product FROM complaints WHERE statecapital="'+ state +'" GROUP BY productname ORDER BY -COUNT(productname);')
+  return sequelize.query(queryString)
     .then(function(complaints) {
-      console.log(prodRank + ' most complained about product in ' + state + ':', complaints[prodRank - 1][prodRank - 1].product);
-      var product = complaints[prodRank - 1][prodRank - 1].product;
-      res.send(product);
+      console.log(prodRank + ' most complained about product in ' + state + ':', complaints[prodRank - 1][prodRank - 1]);
+      var product = complaints[0].length ? complaints[prodRank - 1][prodRank - 1].product: null;
+      var numberOfC = complaints[prodRank - 1].reduce(function(total, curr) {
+        return total + curr['COUNT(productname)'];
+      }, 0); 
+          
+      var result = {
+        state: state,
+        product: {
+          name: product,
+          rank: prodRank,
+          complaints: numberOfC
+        }
+      };
+      res.json(result);
     })
     .catch(function(err) {
       console.log(err);
@@ -53,14 +65,15 @@ exports.pop = function(bank, year, res) {
   return sequelize.query('select sum(births) as sumOfBirths from populations where statecapital in (select statecapital as states from complaints where bankname="' + bank + '" group by statecapital) and year="' + year + '";')
     .then(function(births) {
       console.log('Total births in states where '+bank+' had complaints in '+year+':', births[0][0].sumOfBirths);
-      // can send separate query to retrieve number of states affected
+      
+      // TODO: Can send separate query to retrieve number of states affected
       var results = {
         // states: states.length,
         births: births[0][0].sumOfBirths,
         bank: bank,
         year: year
       };
-      res.send(results);
+      res.json(results);
     })
     .catch(function(err) {
       console.log('Error with SQL query', err);
@@ -72,23 +85,25 @@ exports.pop = function(bank, year, res) {
 exports.states = function(stateRank, prodRank, year, res) {
   stateRank = stateRank || 1;
   prodRank = prodRank || 1;
-  year = year || 2011;
-
+  year = year || 2015;
+  console.log(stateRank, prodRank, year);
   var start = new Date('' + year).toISOString().replace('Z', '');
   var end = new Date('' + (year + 1)).toISOString().replace('Z', '');
+  var queryString = 'select (births-deaths) as growth,statecapital from populations where year="' + year + '" and statecapital is not null order by -growth;';
   
   // Sequelize: find state of [stateRank] most growth in [year]
-  return sequelize.query('select (births-deaths) as growth,statecapital from populations where year="' + year + '" and statecapital is not null order by -growth;')
+  return sequelize.query(queryString)
     .then(function(growths) {
       console.log('State of '+ stateRank +' growth:', growths[stateRank-1][stateRank-1].statecapital);
       var state = growths[stateRank - 1][stateRank - 1].statecapital;
+      
       // then find [prodRank] complaints about [product] in found state
-      return sequelize.query('select count(productname),productname from complaints where statecapital="' + state +'" and date between "' + start + '" and "' + end +'" group by productname order by -count(productname);')
+      queryString = 'select count(productname),productname from complaints where statecapital="' + state +'" and date between "' + start + '" and "' + end +'" group by productname order by -count(productname);';
+      return sequelize.query(queryString)
         .then(function(products) {
           console.log('Product of '+prodRank+' most complaints in '+state+ ':', products[prodRank - 1][prodRank - 1].productname);
           var product = products[prodRank - 1][prodRank - 1].productname;
           var count = products[prodRank - 1][prodRank - 1]['count(productname)'];
-          
           var results = {
             state: {
               name: state,
@@ -101,7 +116,7 @@ exports.states = function(stateRank, prodRank, year, res) {
             }
           };
           console.log('Sending to client:', results);
-          res.send(results);
+          res.json(results);
         })
         .catch(function(err) {
           console.log('Error querying product', err);
@@ -131,8 +146,7 @@ exports.initialize = function(res) {
           products = products.map(function(product) {
             return product.dataValues.name;
           });
-          console.log('Companies AND products', companies, products);
-          res.send({companies: companies, products: products});
+          res.json({companies: companies, products: products});
         })
         .catch(function(err) {
           console.log('Error finding products', err);

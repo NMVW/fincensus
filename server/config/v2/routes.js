@@ -10,10 +10,10 @@ module.exports = function(app) {
   // NUMBER OF PRODUCTS with issue 'x'
   // https://data.consumerfinance.gov/resource/jhzv-w97w.json?$select=issue,count(product)&$group=issue&state=FL&$order=-count_product
   
-  // (Product) of [rank] most complaints in [state] of
-  app.route('/api/v2/states/:state/:rank')
+  // (Product) of [prodRank] most complaints in [state] of
+  app.route('/api/v2/states/:state/:prodRank')
     .get(function(req, res) {
-      worker.complaintsToProduct(req.params.state, req.params.rank, res); 
+      worker.complaintsToProduct(req.params.state, req.params.prodRank, res); 
     });
 
   // (Number of births) in the [year] and states where [bank] had a complaint
@@ -22,10 +22,10 @@ module.exports = function(app) {
       worker.pop(req.params.bank, +req.params.year, res);
    });
 
-  // (State) of [rank] most growth with most complaints about [product]
-  app.route('/api/v2/growth/:year/:rank/:product')
+  // (State) of [stateRank] most growth with [prodRank] most complaints about a product
+  app.route('/api/v2/growth/:year/:stateRank/:prodRank')
     .get(function(req, res) {
-      worker.states(+req.params.rank, req.params.product, +req.params.year, res)
+      worker.states(+req.params.stateRank, +req.params.prodRank, +req.params.year, res)
     });
     
   // Initialize API-valid banks and products (states, years assumed stagnant params)
