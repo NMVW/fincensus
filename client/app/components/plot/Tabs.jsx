@@ -24,16 +24,16 @@ class ContainerTabs extends React.Component {
     
     return <Tabs defaultActiveKey={this.props.active} onSelect={this._handleSelect} id="controlled-tabs">
       <Tab eventKey={"STATES"} title="STATE">
-        What is the <strong>RANK</strong> most complained about product in <strong>STATE</strong>?
-        <Query params={["STATE", "RANK"]}/>
+        What is the <strong>PRODUCTRANK</strong> most complained about product in <strong>STATE</strong>?
+        <Query params={["STATE", "PRODUCTRANK"]}/>
       </Tab>
       <Tab eventKey={"POPULATION"} title="POPULATION">
         How many people were born in states where <strong>BANK</strong> had a complaint in <strong>YEAR</strong>.
         <Query params={["YEAR", "BANK"]} />
       </Tab>
       <Tab eventKey={"GROWTH"} title="GROWTH">
-        Number of complaints about <strong>PRODUCT</strong> in the <strong>RANK</strong> fastest growing state.
-        <Query params={["PRODUCT", "RANK"]} />
+        Number of complaints about <strong>PRODUCTRANK</strong> product in the <strong>STATERANK</strong> fastest growing state.
+        <Query params={["PRODUCTRANK", "STATERANK"]} />
       </Tab>
     </Tabs>
   }

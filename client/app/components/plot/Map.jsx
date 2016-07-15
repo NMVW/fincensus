@@ -35,20 +35,20 @@ class Map extends React.Component {
     if (this.props.active === 'STATES') {
       // update fields for rendering
       fields.locations = [newProps.query.state];
-      fields.z = [+newProps.query.product.count_issue];
+      fields.z = [+newProps.query.product.complaints];
       fields.text = ['Complaints in ' + newProps.query.state];
       fields.zmin = 0;
       fields.zmax = 20000;
-      fields.mapTitle = '#' + newProps.query.rank + ' Product: ' + newProps.query.product.product;
+      fields.mapTitle = '#' + newProps.query.product.rank + ' Product: ' + newProps.query.product.name;
       fields.colorbarTitle = '# of Complaints';
     } else if (this.props.active === 'GROWTH') {
       // update fields for rendering
-      fields.locations = [newProps.query.state];
-      fields.z = [newProps.query.top.complaints];
-      fields.text = ['Complaints in ' + newProps.query.state];
+      fields.locations = [newProps.query.state.name];
+      fields.z = [newProps.query.product.complaints];
+      fields.text = ['Complaints about ' + newProps.query.product.name];
       fields.zmin = 0;
       fields.zmax = 20000;
-      fields.mapTitle = 'Complaints in #' + newProps.query.rank + ' Growing State';
+      fields.mapTitle = 'Complaints in #' + newProps.query.state.rank + ' Growing State: ' + newProps.query.state.name;
       fields.colorbarTitle = '# of Complaints';
     } else if (this.props.active === 'POPULATION') {
       // update fields for rendering
