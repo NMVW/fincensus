@@ -22,18 +22,18 @@ var Product = models.Product;
 var Submission = models.Submission;
 var Issue = models.Issue;
 
-//// (Product) of [rank] most complaints in [state] of
+//// (Product) of [prodRank] most complaints in [state] of
 // inputs: 2 CHAR uppercase string, number OPTIONAL -> output: string
-exports.complaintsToProduct = function(state, rank, res) {
+exports.complaintsToProduct = function(state, prodRank, res) {
   state = state || 'CO';
-  rank = rank || 1;
+  prodRank = prodRank || 1;
   
   // TODO: refactor raw SQL to optimized Sequelize query
-  // Complaint.findAll({statecapital: state , offset: rank-1, limit: 1, number: sequelize.fn('COUNT', 'productname') order: 'by number desc'})
+  // Complaint.findAll({statecapital: state , offset: prodRank-1, limit: 1, number: sequelize.fn('COUNT', 'productname') order: 'by number desc'})
   sequelize.query('SELECT COUNT(productname), productname AS product FROM complaints WHERE statecapital="'+ state +'" GROUP BY productname ORDER BY -COUNT(productname);')
     .then(function(complaints) {
-      console.log(rank + ' most complained about product in ' + state + ':', complaints[rank - 1][rank - 1].product);
-      var product = complaints[rank - 1][rank - 1].product;
+      console.log(prodRank + ' most complained about product in ' + state + ':', complaints[prodRank - 1][prodRank - 1].product);
+      var product = complaints[prodRank - 1][prodRank - 1].product;
       res.send(product);
     })
     .catch(function(err) {
@@ -50,6 +50,11 @@ exports.pop = function(bank, year, res) {
   var start = new Date('' + year).toISOString().replace('Z', '');
   var end = new Date('' + (year + 1)).toISOString().replace('Z', '');
 
+  sequelize.query('select (births - deaths) as growth,populations.statecapital,bankname,productname,issuename,submissionvia from populations inner join complaints on populations.statecapital = complaints.statecapital where year="' + year + '" order by -growth;')
+  
+  
+  
+  
   //// Consumer Complaints DB
   complaintsRequest(baseComplaints + '?company=' + bank + '&$where=date_sent_to_company between "' + start + '" and "' + end + '"')
     .then(function(complaints) {
@@ -112,77 +117,49 @@ exports.pop = function(bank, year, res) {
     });
 };
 
-//// (State) of [rank] most growth with most complaints about [product]
-// inputs: number OPTIONAL, string, number OPTIONAL -> output: [string, string]
-exports.states = function(rank, product, year, res) {
-  rank = rank || 1;
-  product = product || 'Mortgage';
-  year = year || 2015;
+//// (State) of [stateRank] most growth with product of [rank] complaints
+// inputs: number OPTIONAL, number OPTIONAL, number OPTIONAL -> output: {state: {rank, name}, product: {rank, name, complaints}}
+exports.states = function(stateRank, prodRank, year, res) {
+  stateRank = stateRank || 1;
+  prodRank = prodRank || 1;
+  year = year || 2011;
 
   var start = new Date('' + year).toISOString().replace('Z', '');
   var end = new Date('' + (year + 1)).toISOString().replace('Z', '');
-
-  var stateGrowth = {};
-
-  // helper for concurrent side-effects
-  function netBirths(stateGrowth, state, cb) {
-
-    //// US Census API
-    // concurrent calls to sum BIRTHS
-    request(baseCensus + 'components?get=BIRTHS,DEATHS,GEONAME&for=state:' + stateToFips[state] + '&PERIOD=' + periods[year])
-      .then(function(data) {
-
-        var growth = JSON.parse(data);
-        console.log('net growth for:', state, +growth[1][0]-growth[1][1]);
-
-        if (growth && typeof +growth[1][0] === 'number') {
-          stateGrowth[state] = +growth[1][0] - growth[1][1];
-          cb(null, stateGrowth);
-        } else {
-          cb(null, stateGrowth);
-        }
-      })
-      .catch(function(err) {
-        // NONBLOCKING error on 'AP' and 'GU' provinces returned from states query
-        console.log(err,'NOT a continental state: ', state,' growths:', stateGrowth);
-        cb(null, stateGrowth);
-      });
-  }
   
-  var states = Object.keys(stateToFips);
-  
-  // (Net births) in [states]
-  asyncReduce(states, {}, netBirths, function(err, stateGrowth) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log('stateGrowth', stateGrowth);
-      
-      // find [rank] fastest growing state
-      var ranked = states.sort(function(a, b) {return stateGrowth[b] - stateGrowth[a]});
-      var select = ranked[rank - 1];
-      
-      // find # of complaints for [product] in found state
-      //// Consumer Complaints DB
-      complaintsRequest(baseComplaints + '?product=' + product + '&state=' + select + '&$where=date_sent_to_company between "' + start + '" and "' + end + '"')
-        .then(function(complaints) {
-          complaints = JSON.parse(complaints);
+  // Sequelize: find state of [stateRank] most growth in [year]
+  return sequelize.query('select (births-deaths) as growth,statecapital from populations where year="' + year + '" and statecapital is not null order by -growth;')
+    .then(function(growths) {
+      console.log('State of '+ stateRank +' growth:', growths[stateRank-1][stateRank-1].statecapital);
+      var state = growths[stateRank - 1][stateRank - 1].statecapital;
+      // then find [prodRank] complaints about [product] in found state
+      return sequelize.query('select count(productname),productname from complaints where statecapital="' + state +'" and date between "' + start + '" and "' + end +'" group by productname order by -count(productname);')
+        .then(function(products) {
+          console.log('Product of '+prodRank+' most complaints in '+state+ ':', products[prodRank - 1][prodRank - 1].productname);
+          var product = products[prodRank - 1][prodRank - 1].productname;
+          var count = products[prodRank - 1][prodRank - 1]['count(productname)'];
           
-          var result = {
-            rank: rank,
-            state: select,
-            top: {
-              product: product,
-              complaints: complaints.length
+          var results = {
+            state: {
+              name: state,
+              rank: stateRank
+            },
+            product: {
+              name: product,
+              rank: prodRank,
+              complaints: count
             }
           };
-          // (State) that [bank] had complaints in [year]
-          res.send(result);
-        }).catch(function(err) {
-          console.log(err);
+          console.log('Sending to client:', results);
+          res.send(results);
+        })
+        .catch(function(err) {
+          console.log('Error querying product', err);
         });
-    }
-  });
+    })
+    .catch(function(err) {
+      console.log('Error querying state', err);
+    });
 };
 
 exports.initialize = function(res) {
