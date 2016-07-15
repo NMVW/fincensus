@@ -47,75 +47,25 @@ exports.pop = function(bank, year, res) {
   bank = bank || 'Bank of America';
   year = year || 2015;
   
-  var start = new Date('' + year).toISOString().replace('Z', '');
-  var end = new Date('' + (year + 1)).toISOString().replace('Z', '');
+  // var start = new Date('' + year).toISOString().replace('Z', '');
+  // var end = new Date('' + (year + 1)).toISOString().replace('Z', '');
 
-  sequelize.query('select (births - deaths) as growth,populations.statecapital,bankname,productname,issuename,submissionvia from populations inner join complaints on populations.statecapital = complaints.statecapital where year="' + year + '" order by -growth;')
-  
-  
-  
-  
-  //// Consumer Complaints DB
-  complaintsRequest(baseComplaints + '?company=' + bank + '&$where=date_sent_to_company between "' + start + '" and "' + end + '"')
-    .then(function(complaints) {
-      complaints = JSON.parse(complaints);
-
-      // (States) that [bank] had complaints in [year]
-      var states = complaints.reduce(function(uniqs, complaint) {
-        // exclude provinces 'AP', 'GU'
-        if (complaint.state && complaint.state !== 'AP' && complaint.state !== 'GU') {
-          uniqs[complaint.state] = true;
-        }
-        return uniqs;
-      }, {});
-      
-      states = Object.keys(states);
-
-      // helper for concurrent reduce
-      function sumBirths(births, state, cb) {
-
-        //// US Census API
-        // concurrent calls to sum BIRTHS
-        request(baseCensus + 'components?get=BIRTHS,GEONAME&for=state:' + stateToFips[state] + '&PERIOD=' + periods[year])
-          .then(function(data) {
-
-            var birth = JSON.parse(data);
-            console.log('births in range for state:',state, +birth[1][0], 'total:',births);
-
-            if (birth && typeof +birth[1][0] === 'number') {
-              cb(null, births + +birth[1][0]);
-            } else {
-              cb(null, births + 0);
-            }
-          })
-          .catch(function(err) {
-            // NONBLOCKING error on provinces returned from states query
-            console.log(err,'NOT a continental state: ', state,' total:', births);
-            cb(null, births + 0);
-          });
-      }
-
-      // (Number of births) in [states]
-      sumReduce(states, 0, sumBirths, function(err, result) {
-        if (err) {
-          console.log(err);
-          res.send(err);
-        } else {
-          var results = {
-            states: states.length,
-            births: result,
-            bank: bank,
-            year: year
-          };
-          // send (Number of births) to client HERE in response body
-          res.send(results);
-        }
-      })
+  return sequelize.query('select sum(births) as sumOfBirths from populations where statecapital in (select statecapital as states from complaints where bankname="' + bank + '" group by statecapital) and year="' + year + '";')
+    .then(function(births) {
+      console.log('Total births in states where '+bank+' had complaints in '+year+':', births[0][0].sumOfBirths);
+      // can send separate query to retrieve number of states affected
+      var results = {
+        // states: states.length,
+        births: births[0][0].sumOfBirths,
+        bank: bank,
+        year: year
+      };
+      res.send(results);
     })
     .catch(function(err) {
-      console.log(err);
-    });
-};
+      console.log('Error with SQL query', err);
+    });  
+}; 
 
 //// (State) of [stateRank] most growth with product of [rank] complaints
 // inputs: number OPTIONAL, number OPTIONAL, number OPTIONAL -> output: {state: {rank, name}, product: {rank, name, complaints}}

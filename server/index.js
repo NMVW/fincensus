@@ -8,7 +8,7 @@ require('./config/v1/routes.js')(app, express);
 // require('./config/v2/handlers.js').complaintsToProduct();
 // require('./config/v2/handlers.js').initialize();
 // require('./config/v2/handlers.js').pop();
-require('./config/v2/handlers.js').states();
+// require('./config/v2/handlers.js').states();
 
 var port = process.env.PORT || 3333;
 var server = app.listen(port, function() {
