@@ -52,6 +52,8 @@ var initComplaintsTable = require('./seed/complaint.seed').initComplaintsTable;
 
 // ORDER OF INITIALIZATION (foreign key constraints)
 // States -> Banks -> Populations -> Products -> Issues -> Submissions -> Complaints
+exports.initializeDB = function initializeDatabase() {
+  
 initProductsTable(Product)
   .then(function(product) {
     console.log('Products seeded.', product);
@@ -84,7 +86,8 @@ initProductsTable(Product)
   .catch(function(err) {
     console.log('Error in seed chain', err);
   });
-  
+};
+
 exports.Bank = Bank;
 exports.State = State;
 exports.Population = Population;
