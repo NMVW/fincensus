@@ -4,9 +4,9 @@ import { Button } from 'react-bootstrap';
 import { loadQuery } from '../../../data_flow/ACTIONS.jsx';
 
 // Exposed API Endpoints
-// /api/states/:state/:rank
+// /api/states/:state/:productRank
 // /api/population/:bank/:year
-// /api/growth/:year/:rank/:product
+// /api/growth/:year/:stateRank/:productRank
 
 class SmartButton extends React.Component {
   constructor(props) {
@@ -19,14 +19,14 @@ class SmartButton extends React.Component {
     let sendQuery = this.props.dispatch;
     switch (this.props.active) {
       case 'STATES':
-        query.path = 'states/' + this.props.build.STATE + '/' + this.props.build.RANK
+        query.path = 'states/' + this.props.build.STATE + '/' + this.props.build.PRODUCTRANK;
         return sendQuery(loadQuery(query));
       case 'GROWTH':
-        query.path = 'growth/' + this.props.build.YEAR + '/' + this.props.build.RANK + '/' + this.props.build.PRODUCT
+        query.path = 'growth/' + this.props.build.YEAR + '/' + this.props.build.STATERANK + '/' + this.props.build.PRODUCTRANK;
         return sendQuery(loadQuery(query));
       default:
         // 'POPULATION'
-        query.path = 'population/' + this.props.build.BANK + '/' + this.props.build.YEAR
+        query.path = 'population/' + this.props.build.BANK + '/' + this.props.build.YEAR;
         return sendQuery(loadQuery(query));
     }    
   }

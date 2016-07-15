@@ -23,9 +23,9 @@ class Query extends React.Component {
         });
       case 'GROWTH':
         this.setState({
-          PRODUCT: this.props.products[0],
-          RANK: 1,
-          YEAR: this.props.products[0]
+          PRODUCTRANK: 1,
+          STATERANK: 1,
+          YEAR: this.props.years[0]
         });
       default:
         this.setState({
@@ -37,26 +37,32 @@ class Query extends React.Component {
   
   _updateQuery(e) {
     let ranks = [1,2,3,4,5,6,7,8,9,10];
-    let val = e.target.value;
-    if (this.props.states.indexOf(val) !== -1) {
+    let target = e.target;
+    let val = target.value;
+
+    if (this.props.states.includes(val)) {
       this.setState({
         STATE: val
       });
-    } else if (this.props.banks.indexOf(val) !== -1) {
+    } else if (this.props.banks.includes(val)) {
       this.setState({
         BANK: val
       });
-    } else if (this.props.products.indexOf(val) !== -1) {
+    } else if (this.props.products.includes(val)) {
       this.setState({
         PRODUCT: val
       });
-    } else if (this.props.years.indexOf(+val) !== -1) {
+    } else if (this.props.years.includes(+val)) {
       this.setState({
-        YEAR: val
+        YEAR: +val
       });
-    } else if (ranks.indexOf(+val) !== -1) {
+    } else if (target.id.match(/PRODUCTRANK/) && ranks.includes(+val)) {
       this.setState({
-        RANK: val
+        PRODUCTRANK: +val
+      });
+    } else if (target.id.match(/STATERANK/) && ranks.includes(+val)) {
+      this.setState({
+        STATERANK: +val
       });
     }
   }
@@ -79,23 +85,27 @@ class Query extends React.Component {
               
                 if (param === 'STATE') {
                   return self.props.states.map((state) => {
-                    return <option flag="STATE" key={state} value={state}>{state}</option>
+                    return <option key={state} value={state}>{state}</option>
                   })
                 } else if (param === 'YEAR') {
                   return self.props.years.map((year) => {
-                    return <option flag="YEAR" key={year} value={year}>{year}</option>
+                    return <option key={year} value={year}>{year}</option>
                   })
                 } else if (param === 'BANK') {
                   return self.props.banks.map((bank) => {
-                    return <option flag="BANK" key={bank} value={bank}>{bank}</option>
+                    return <option key={bank} value={bank}>{bank}</option>
                   })
                 } else if (param === 'PRODUCT') {
                   return self.props.products.map((product) => {
-                    return <option flag="PRODUCT" key={product} value={product}>{product}</option>
+                    return <option key={product} value={product}>{product}</option>
                   })
-                } else {
-                  return ranks.map((rank) => {
-                    return <option flag="RANK" key={rank} value={rank}>{rank}</option>
+                } else if (param === 'STATERANK') {
+                  return ranks.map((stateRank) => {
+                    return <option key={stateRank} value={stateRank}>{stateRank}</option>
+                  })
+                } else if (param === 'PRODUCTRANK') {
+                  return ranks.map((productRank) => {
+                    return <option key={productRank} value={productRank}>{productRank}</option>
                   })
                 }
               })()
