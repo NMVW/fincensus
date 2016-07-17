@@ -6,6 +6,7 @@ var sequelize = null;
 var Schemas = require('./schemas');
 
 if (process.env.CLEARDB_DATABASE_URL) {
+  console.log('Initializing production DB connection: ', process.env.CLEARDB_DATABASE_URL);
   //initialize db on production server
   sequelize = new Sequelize(process.env.CLEARDB_DATABASE_URL);
 } else {
