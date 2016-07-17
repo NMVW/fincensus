@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 
-require('./db/db.config.js').initializeDB();
+// require('./db/db.config.js').initializeDB();
 require('./config/middleware.js')(app, express);
 require('./config/v2/routes.js')(app, express);
 
