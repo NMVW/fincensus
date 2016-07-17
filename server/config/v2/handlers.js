@@ -50,6 +50,7 @@ exports.complaintsToProduct = function(state, prodRank, res) {
     })
     .catch(function(err) {
       console.log(err);
+      res.json(null);
     });
 };
 
@@ -77,6 +78,7 @@ exports.pop = function(bank, year, res) {
     })
     .catch(function(err) {
       console.log('Error with SQL query', err);
+      res.json(null);
     });  
 }; 
 
@@ -120,10 +122,12 @@ exports.states = function(stateRank, prodRank, year, res) {
         })
         .catch(function(err) {
           console.log('Error querying product', err);
+          res.json(null);
         });
     })
     .catch(function(err) {
       console.log('Error querying state', err);
+      res.json(null);
     });
 };
 
@@ -150,9 +154,11 @@ exports.initialize = function(res) {
         })
         .catch(function(err) {
           console.log('Error finding products', err);
+          res.json(null);
         });
     })
     .catch(function(err) {
       console.log('Error finding companies', err);
+      res.json(null);
     });
 };
