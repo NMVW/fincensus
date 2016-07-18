@@ -1,17 +1,6 @@
-// helpers
-// var sumReduce = require('../utils.js').sumReduce;
-// var asyncReduce = require('../utils.js').asyncReduce;
-var Sequelize = require('sequelize');
-var sequelize = null;
+// expose DB connection to handle queries
 var models = require('../../db/db.config');
-
-if (process.env.CLEARDB_DATABASE_URL) {
-  //initialize db connection on production server
-  sequelize = new Sequelize(process.env.CLEARDB_DATABASE_URL);
-} else {
-  //initialize db connection on localhost
-  sequelize = new Sequelize('fincensus', 'root', '', {logging: false});
-}
+var sequelize = models.sequelize;
 
 // import database models
 var Bank = models.Bank;

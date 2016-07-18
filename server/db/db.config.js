@@ -96,3 +96,4 @@ exports.Complaint = Complaint;
 exports.Product = Product;
 exports.Submission = Submission;
 exports.Issue = Issue;
+exports.sequelize = sequelize;
