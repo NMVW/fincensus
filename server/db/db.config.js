@@ -8,7 +8,12 @@ var Schemas = require('./schemas');
 if (process.env.CLEARDB_DATABASE_URL) {
   console.log('Initializing production DB connection: ', process.env.CLEARDB_DATABASE_URL);
   //initialize db on production server
-  sequelize = new Sequelize(process.env.CLEARDB_DATABASE_URL);
+  sequelize = new Sequelize(process.env.CLEARDB_DATABASE_URL, {
+    pool: {
+      maxConnections: 10,
+      maxIdleTime: 30
+    }
+  });
 } else {
   //initialize db on localhost
   sequelize = new Sequelize('fincensus', 'root', '', {logging: false});
